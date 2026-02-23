@@ -1,38 +1,31 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ziggurat Builder Pro</title>
+<title>Ziggurat NoCode Builder</title>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-font-family:Inter,Arial;
-background:#f1f5f9;
-display:flex;
-height:100vh;
-overflow:hidden
-}
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Arial;}
+body{display:flex;height:100vh;background:#f1f5f9;overflow:hidden;}
 
 /* ===== SIDEBARS ===== */
 .sidebar{
-width:240px;
+width:260px;
 background:#ffffff;
 border-right:1px solid #e2e8f0;
 padding:15px;
 overflow:auto;
-transition:.3s
+transition:.3s;
 }
-
 #rightPanel{
-border-right:none;
 border-left:1px solid #e2e8f0;
+border-right:none;
 }
 
 .sidebar h3{
 margin-bottom:10px;
-font-size:14px
+font-size:14px;
 }
 
 .comp{
@@ -43,17 +36,11 @@ color:white;
 border-radius:6px;
 cursor:grab;
 font-size:13px;
-text-align:center
+text-align:center;
 }
 
 /* ===== CENTER ===== */
-#center{
-flex:1;
-display:flex;
-flex-direction:column;
-align-items:center;
-position:relative;
-}
+#center{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;}
 
 /* Top Bar */
 .topbar{
@@ -66,11 +53,7 @@ align-items:center;
 justify-content:space-between;
 padding:0 15px;
 }
-
-.iconBtn{
-cursor:pointer;
-font-size:20px;
-}
+.iconBtn{cursor:pointer;font-size:22px;user-select:none}
 
 /* Phone */
 .phone{
@@ -84,72 +67,41 @@ overflow:hidden;
 display:flex;
 flex-direction:column;
 }
-
-.toolbar{
-height:60px;
-background:#1e293b;
-color:white;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.main{
-flex:1;
-padding:10px;
-overflow:auto;
-}
+.toolbar{height:60px;background:#1e293b;color:white;display:flex;align-items:center;justify-content:center;}
+.main{flex:1;padding:10px;overflow:auto;position:relative;}
 
 .element{
 padding:8px;
 margin:6px 0;
 border-radius:6px;
 cursor:pointer;
+border:1px solid #cbd5e1;
+background:#e2e8f0;
 }
-
-.selected{
-outline:3px solid #2563eb;
-}
+.selected{outline:3px solid #2563eb;}
 
 /* Preview Button */
 #previewBtn{
-position:absolute;
-bottom:20px;
-right:20px;
-background:#2563eb;
-color:white;
-padding:10px 16px;
-border-radius:30px;
-cursor:pointer;
+position:absolute;bottom:20px;right:20px;background:#2563eb;color:white;padding:10px 16px;border-radius:30px;cursor:pointer;
 }
 
-/* ===== PROPERTIES ===== */
-label{font-size:12px;margin-top:10px;display:block}
-input,select{
-width:100%;
-padding:6px;
-margin-top:3px
-}
+/* PROPERTIES PANEL */
+label{font-size:12px;margin-top:10px;display:block;}
+input,select{width:100%;padding:6px;margin-top:3px}
 
-/* ===== RESPONSIVE ===== */
+/* PAGE TABS */
+#pageTabs{width:100%;display:flex;align-items:center;gap:8px;padding:10px;background:#ffffff;border-bottom:1px solid #e2e8f0;overflow-x:auto;}
+.page-tab{padding:6px 12px;background:#e2e8f0;border-radius:20px;cursor:pointer;font-size:13px;white-space:nowrap;}
+.page-tab.active{background:#2563eb;color:white;}
+#addPage{padding:6px 12px;background:#10b981;color:white;border-radius:50%;cursor:pointer}
+
+/* RESPONSIVE */
 @media(max-width:900px){
-.sidebar{
-position:absolute;
-height:100%;
-z-index:1000;
-left:-250px;
-top:0;
-}
-#rightPanel{
-right:-250px;
-left:auto;
-}
-.sidebar.active{
-left:0;
-}
-#rightPanel.active{
-right:0;
-}
+.sidebar{position:absolute;height:100%;z-index:1000;left:-270px;top:0;}
+#rightPanel{right:-270px;left:auto;}
+.sidebar.active{left:0;}
+#rightPanel.active{right:0;}
+.phone{width:90%;}
 }
 </style>
 </head>
@@ -160,145 +112,226 @@ right:0;
 <h3>Components</h3>
 <div class="comp" draggable="true" data-type="text">Text</div>
 <div class="comp" draggable="true" data-type="button">Button</div>
-<div class="comp" draggable="true" data-type="card">Card</div>
+<div class="comp" draggable="true" data-type="input">Input Field</div>
+<div class="comp" draggable="true" data-type="card">Card / Container</div>
 <div class="comp" draggable="true" data-type="image">Image</div>
+<div class="comp" draggable="true" data-type="list">List View</div>
+<div class="comp" draggable="true" data-type="slider">Slider</div>
+<div class="comp" draggable="true" data-type="modal">Modal / Dialog</div>
+<div class="comp" draggable="true" data-type="alert">Alert / Snackbar</div>
+<div class="comp" draggable="true" data-type="avatar">Avatar / Badge</div>
+<div class="comp" draggable="true" data-type="radio">Radio / Checkbox / Switch</div>
+<div class="comp" draggable="true" data-type="drawer">Drawer / Sidebar</div>
 </div>
 
 <!-- CENTER -->
 <div id="center">
-
 <div class="topbar">
 <span class="iconBtn" onclick="toggleLeft()">☰</span>
 <span>Ziggurat Builder</span>
 <span class="iconBtn" onclick="toggleRight()">⚙</span>
 </div>
 
+<div id="pageTabs"></div>
+
 <div class="phone">
-<div class="toolbar">App Title</div>
+<div class="toolbar">App Toolbar</div>
 <div class="main" id="canvas"></div>
 </div>
 
 <div id="previewBtn" onclick="togglePreview()">Preview</div>
-
 </div>
 
 <!-- RIGHT PROPERTIES -->
 <div class="sidebar" id="rightPanel">
 <h3>Properties</h3>
 
-<label>Text</label>
+<label>Text / Label</label>
 <input type="text" id="propText">
 
 <label>Background</label>
 <input type="color" id="propBg">
+
+<label>Font Size</label>
+<input type="number" id="propFontSize" min="8" max="72">
+
+<label>Text Color</label>
+<input type="color" id="propColor">
 
 <label>Action</label>
 <select id="propAction">
 <option value="none">None</option>
 <option value="alert">Show Alert</option>
 <option value="link">Open Link</option>
+<option value="goto">Go To Page</option>
 </select>
 
-<label>Link URL</label>
-<input type="text" id="propLink">
+<label>Target / Link</label>
+<input type="text" id="propTarget">
 
+<label>Width (px)</label>
+<input type="number" id="propWidth">
+
+<label>Height (px)</label>
+<input type="number" id="propHeight">
+
+<label>Border Radius (px)</label>
+<input type="number" id="propRadius">
+
+<label>Shadow</label>
+<input type="checkbox" id="propShadow"> Enable
 </div>
 
 <script>
-let selected=null
-let preview=false
+/* ===== GLOBAL ===== */
+let selected=null;
+let preview=false;
+let pages={};
+let currentPage=null;
 
-function toggleLeft(){
-leftPanel.classList.toggle("active")
+function toggleLeft(){leftPanel.classList.toggle("active")}
+function toggleRight(){rightPanel.classList.toggle("active")}
+
+/* ===== PAGES ===== */
+function createPage(){
+let id="page"+Object.keys(pages).length;
+pages[id]=[];
+currentPage=id;
+renderTabs();
+renderPage();
 }
-function toggleRight(){
-rightPanel.classList.toggle("active")
+createPage();
+
+function renderTabs(){
+pageTabs.innerHTML="";
+for(let id in pages){
+let tab=document.createElement("div");
+tab.className="page-tab"+(id===currentPage?" active":"");
+tab.innerText=id;
+tab.onclick=()=>{currentPage=id;renderTabs();renderPage()};
+pageTabs.appendChild(tab);
+}
+let add=document.createElement("div");
+add.id="addPage";
+add.innerText="+";
+add.onclick=createPage;
+pageTabs.appendChild(add);
 }
 
-/* Drag */
+function renderPage(){
+canvas.innerHTML="";
+pages[currentPage].forEach(el=>canvas.appendChild(el));
+}
+
+/* ===== DRAG & DROP ===== */
 document.querySelectorAll(".comp").forEach(c=>{
 c.addEventListener("dragstart",e=>{
-e.dataTransfer.setData("type",c.dataset.type)
+e.dataTransfer.setData("type",c.dataset.type);
 })
-})
+});
 
-canvas.addEventListener("dragover",e=>e.preventDefault())
+canvas.addEventListener("dragover",e=>e.preventDefault());
 canvas.addEventListener("drop",e=>{
-e.preventDefault()
-let type=e.dataTransfer.getData("type")
-let el=document.createElement("div")
-el.className="element"
+e.preventDefault();
+let type=e.dataTransfer.getData("type");
+let el=document.createElement("div");
+el.className="element";
+el.style.minHeight="30px";
+el.style.minWidth="50px";
+el.style.background="#f3f4f6";
 
-if(type==="text"){el.innerText="Sample Text"}
-if(type==="button"){el.innerText="Button";el.style.background="#2563eb";el.style.color="#fff"}
-if(type==="card"){el.innerText="Card Content";el.style.background="#e2e8f0"}
-if(type==="image"){el.innerHTML='<img src="https://via.placeholder.com/200" width="100%">'}
+/* Default content */
+switch(type){
+case"text": el.innerText="Sample Text"; break;
+case"button": el.innerText="Button"; el.style.background="#2563eb"; el.style.color="#fff"; el.style.textAlign="center"; break;
+case"input": el.innerHTML='<input type="text" placeholder="Enter text..." style="width:100%;">'; break;
+case"card": el.innerText="Card / Container"; el.style.background="#e2e8f0"; el.style.padding="10px"; break;
+case"image": el.innerHTML='<img src="https://via.placeholder.com/150" style="width:100%;">'; break;
+case"list": el.innerHTML="<ul><li>Item 1</li><li>Item 2</li></ul>"; break;
+case"slider": el.innerHTML='<input type="range" min="0" max="100" value="50" style="width:100%;">'; break;
+case"modal": el.innerText="Modal / Dialog"; break;
+case"alert": el.innerText="Alert / Snackbar"; break;
+case"avatar": el.innerText="Avatar / Badge"; el.style.width="50px"; el.style.height="50px"; el.style.borderRadius="50%"; el.style.background="#2563eb"; break;
+case"radio": el.innerHTML='<input type="radio"> Option'; break;
+case"drawer": el.innerText="Drawer / Sidebar"; el.style.background="#1e293b"; el.style.color="#fff"; el.style.padding="10px"; break;
+}
 
-enable(el)
-canvas.appendChild(el)
-})
+enableElement(el);
+pages[currentPage].push(el);
+canvas.appendChild(el);
+});
 
-function enable(el){
+/* ===== ELEMENT SELECTION ===== */
+function enableElement(el){
 el.onclick=e=>{
-if(preview)return
-e.stopPropagation()
-if(selected)selected.classList.remove("selected")
-selected=el
-el.classList.add("selected")
-propText.value=el.innerText
-propBg.value=rgbToHex(el.style.backgroundColor)
+if(preview)return;
+e.stopPropagation();
+if(selected)selected.classList.remove("selected");
+selected=el;
+el.classList.add("selected");
+
+/* Load properties */
+propText.value=el.innerText||"";
+propBg.value=rgbToHex(el.style.backgroundColor)||"#f3f4f6";
+propColor.value=rgbToHex(el.style.color)||"#000000";
+propFontSize.value=parseInt(window.getComputedStyle(el).fontSize)||14;
+propWidth.value=parseInt(el.style.width)||el.offsetWidth;
+propHeight.value=parseInt(el.style.height)||el.offsetHeight;
+propRadius.value=parseInt(el.style.borderRadius)||0;
+propShadow.checked=el.style.boxShadow?true:false;
+propAction.value=el.dataset.action||"none";
+propTarget.value=el.dataset.target||"";
 }
 }
 
-/* Properties */
-propText.oninput=e=>{
-if(selected)selected.innerText=e.target.value
+/* ===== PROPERTIES PANEL ===== */
+function applyProps(){
+if(!selected)return;
+selected.innerText=propText.value;
+selected.style.background=propBg.value;
+selected.style.color=propColor.value;
+selected.style.fontSize=propFontSize.value+"px";
+selected.style.width=propWidth.value+"px";
+selected.style.height=propHeight.value+"px";
+selected.style.borderRadius=propRadius.value+"px";
+selected.style.boxShadow=propShadow.checked?"0 4px 10px rgba(0,0,0,.25)":"";
+selected.dataset.action=propAction.value;
+selected.dataset.target=propTarget.value;
 }
 
-propBg.oninput=e=>{
-if(selected)selected.style.background=e.target.value
-}
+[propText,propBg,propColor,propFontSize,propWidth,propHeight,propRadius,propShadow,propAction,propTarget].forEach(input=>{
+input.addEventListener("input",applyProps);
+});
 
-propAction.onchange=e=>{
-if(selected)selected.dataset.action=e.target.value
-}
-
-propLink.oninput=e=>{
-if(selected)selected.dataset.link=e.target.value
-}
-
-/* Preview */
+/* ===== PREVIEW ===== */
 function togglePreview(){
-preview=!preview
-if(preview){
-previewBtn.innerText="Back"
-runActions()
-}else{
-previewBtn.innerText="Preview"
-}
+preview=!preview;
+document.body.classList.toggle("preview-mode");
+previewBtn.innerText=preview?"Back":"Preview";
+runActions();
 }
 
 function runActions(){
 document.querySelectorAll(".element").forEach(el=>{
 el.onclick=()=>{
-if(el.dataset.action==="alert"){
-alert("Button Clicked")
-}
-if(el.dataset.action==="link"){
-window.location.href=el.dataset.link
+if(el.dataset.action==="alert")alert("Button Clicked!");
+if(el.dataset.action==="link"&&el.dataset.target)window.open(el.dataset.target,"_blank");
+if(el.dataset.action==="goto"&&pages[el.dataset.target]){
+currentPage=el.dataset.target; renderTabs(); renderPage();
 }
 }
 })
 }
 
+/* ===== UTIL ===== */
 function rgbToHex(rgb){
-if(!rgb)return"#ffffff"
-let result=rgb.match(/\d+/g)
-if(!result)return"#ffffff"
+if(!rgb)return"#ffffff";
+let result=rgb.match(/\d+/g);
+if(!result)return"#ffffff";
 return"#"+result.slice(0,3).map(x=>{
-let hex=parseInt(x).toString(16)
-return hex.length==1?"0"+hex:hex
-}).join("")
+let hex=parseInt(x).toString(16);
+return hex.length==1?"0"+hex:hex;
+}).join("");
 }
 </script>
 
