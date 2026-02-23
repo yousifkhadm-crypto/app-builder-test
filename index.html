@@ -1,200 +1,394 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="ltr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Advanced UI Builder</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {margin:0; display:flex; height:100vh; font-family:Inter,sans-serif; background:#f1f5f9; overflow:hidden;}
-  .sidebar{width:250px; background:white; border-right:1px solid #e2e8f0; padding:10px; overflow:auto;}
-  #rightPanel{border-left:1px solid #e2e8f0;}
-  .sidebar h3{margin-bottom:10px; font-size:14px;}
-  .comp{padding:8px; margin:6px 0; background:#2563eb; color:white; border-radius:6px; cursor:grab; text-align:center; font-size:13px; user-select:none;}
-  #center{flex:1; display:flex; flex-direction:column; align-items:center; position:relative;}
-  .topbar{width:100%; height:50px; background:#0f172a; color:white; display:flex; align-items:center; justify-content:space-between; padding:0 15px; position:relative; z-index:50;}
-  .iconBtn{cursor:pointer; font-size:22px; user-select:none;}
-  .phone-frame{width:380px; height:720px; background:white; border-radius:30px; box-shadow:0 25px 60px rgba(0,0,0,.25); margin-top:15px; overflow:hidden; display:flex; flex-direction:column; position:relative;}
-  .phone-toolbar{height:60px; background:#1e293b; color:white; display:flex; align-items:center; justify-content:space-between; padding:0 10px; cursor:pointer;}
-  .canvas{flex:1; padding:10px; overflow:auto; position:relative; background:#f8fafc;}
-  .element{padding:8px; margin:6px 0; border-radius:6px; cursor:pointer; border:1px solid #cbd5e1; background:#e2e8f0; position:absolute; user-select:none;}
-  .selected{outline:3px solid #2563eb;}
-  #previewBtn{position:absolute; bottom:20px; right:20px; background:#2563eb; color:white; padding:10px 16px; border-radius:30px; cursor:pointer; z-index:50;}
-  label{font-size:12px; margin-top:10px; display:block;}
-  input,select{width:100%; padding:6px; margin-top:3px; border:1px solid #cbd5e1; border-radius:4px;}
-  #pageTabs{width:100%; display:flex; align-items:center; gap:8px; padding:10px; background:#ffffff; border-bottom:1px solid #e2e8f0; overflow-x:auto;}
-  .page-tab{padding:6px 12px; background:#e2e8f0; border-radius:20px; cursor:pointer; font-size:13px; white-space:nowrap;}
-  .page-tab.active{background:#2563eb; color:white;}
-  #addPage{padding:6px 12px; background:#10b981; color:white; border-radius:50%; cursor:pointer;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Pro UI Builder v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* Sidebar Styling */
+        .sidebar { width: 300px; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; transition: all 0.3s; }
+        .panel-header { padding: 15px; background: #334155; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; }
+        
+        /* Components Area */
+        .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; overflow-y: auto; }
+        .comp-item { background: #334155; padding: 12px; border-radius: 8px; cursor: grab; text-align: center; transition: 0.2s; border: 1px solid transparent; }
+        .comp-item:hover { background: #2563eb; border-color: #60a5fa; transform: translateY(-2px); }
+        .comp-item i { display: block; font-size: 20px; margin-bottom: 5px; }
+
+        /* Workspace Area */
+        #workspace { flex: 1; display: flex; flex-direction: column; background: #0f172a; position: relative; align-items: center; }
+        .top-nav { width: 100%; height: 60px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        
+        /* Device Frame */
+        .device-container { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; padding: 20px; overflow: auto; }
+        .phone-frame { 
+            width: 375px; height: 750px; background: white; border-radius: 40px; border: 12px solid #334155;
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); position: relative; transition: 0.5s; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
+        .tablet-mode { width: 768px; height: 1024px; }
+        
+        .canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background: #f8fafc; }
+        
+        /* Selected Element Styling */
+        .element-selected { outline: 2px solid #2563eb !important; outline-offset: 2px; }
+        .element-item { position: absolute; min-width: 40px; min-height: 20px; cursor: move; transition: box-shadow 0.2s; }
+
+        /* Right Panel Tabs */
+        .props-content { padding: 15px; overflow-y: auto; flex: 1; }
+        .prop-group { margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
+        .prop-label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 8px; }
+        input[type="text"], input[type="number"], select, input[type="color"] {
+            width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; font-size: 13px;
+        }
+
+        /* Preview Overlay */
+        #preview-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; }
+        
+        .btn-primary { background: #2563eb; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-success { background: #10b981; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .btn-danger { background: #ef4444; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+    </style>
 </head>
 <body>
 
-<!-- LEFT COMPONENTS -->
-<div class="sidebar" id="leftPanel">
-<h3>Components</h3>
-<div class="comp" draggable="true" data-type="text">Text</div>
-<div class="comp" draggable="true" data-type="button">Button</div>
-<div class="comp" draggable="true" data-type="input">Input Field</div>
-<div class="comp" draggable="true" data-type="card">Card / Container</div>
-<div class="comp" draggable="true" data-type="image">Image</div>
-<div class="comp" draggable="true" data-type="list">List View</div>
-<div class="comp" draggable="true" data-type="slider">Slider</div>
-<div class="comp" draggable="true" data-type="modal">Modal / Dialog</div>
-<div class="comp" draggable="true" data-type="alert">Alert / Snackbar</div>
-<div class="comp" draggable="true" data-type="avatar">Avatar / Badge</div>
-<div class="comp" draggable="true" data-type="radio">Radio / Checkbox</div>
-<div class="comp" draggable="true" data-type="drawer">Drawer / Sidebar</div>
-</div>
+    <div class="sidebar">
+        <div class="panel-header">العناصر <i class="fas fa-plus-circle"></i></div>
+        <div class="comp-grid">
+            <div class="comp-item" draggable="true" data-type="text"><i class="fas fa-font"></i>نص</div>
+            <div class="comp-item" draggable="true" data-type="button"><i class="fas fa-mouse-pointer"></i>زر</div>
+            <div class="comp-item" draggable="true" data-type="image"><i class="fas fa-image"></i>صورة</div>
+            <div class="comp-item" draggable="true" data-type="input"><i class="fas fa-i-cursor"></i>حقل إدخال</div>
+            <div class="comp-item" draggable="true" data-type="card"><i class="fas fa-square"></i>حاوية / Card</div>
+            <div class="comp-item" draggable="true" data-type="icon"><i class="fas fa-smile"></i>أيقونة</div>
+            <div class="comp-item" draggable="true" data-type="video"><i class="fas fa-video"></i>فيديو</div>
+            <div class="comp-item" draggable="true" data-type="list"><i class="fas fa-list"></i>قائمة</div>
+        </div>
+        
+        <div class="panel-header">الصفحات <i class="fas fa-copy"></i></div>
+        <div id="pageList" class="p-4 space-y-2">
+            </div>
+        <button onclick="addNewPage()" class="mx-4 mb-4 bg-emerald-600 p-2 rounded text-sm font-bold">+ إضافة صفحة جديدة</button>
+    </div>
 
-<!-- CENTER -->
-<div id="center">
-<div class="topbar">
-<span class="iconBtn" onclick="toggleLeft()">☰</span>
-<span contenteditable="true" id="topbarName">App Toolbar</span>
-<span class="iconBtn" onclick="toggleRight()">⚙</span>
-</div>
+    <div id="workspace">
+        <div class="top-nav">
+            <div class="flex items-center gap-4">
+                <span class="text-xl font-bold text-blue-400">GEMINI UI</span>
+                <div class="flex bg-slate-800 rounded-lg p-1 gap-2">
+                    <button onclick="setDevice('phone')" class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600"><i class="fas fa-mobile-alt"></i></button>
+                    <button onclick="setDevice('tablet')" class="px-3 py-1 rounded hover:bg-slate-700"><i class="fas fa-tablet-alt"></i></button>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="exportCode()" class="bg-slate-700 px-4 py-2 rounded text-sm hover:bg-slate-600"><i class="fas fa-code mr-2"></i>تصدير الكود</button>
+                <button onclick="runPreview()" class="btn-success text-sm"><i class="fas fa-play mr-2"></i>تشغيل</button>
+            </div>
+        </div>
 
-<div id="pageTabs"></div>
+        <div class="device-container">
+            <div id="phoneFrame" class="phone-frame">
+                <div class="h-8 bg-white flex justify-between px-6 pt-2 text-xs font-bold text-slate-800">
+                    <span>9:41</span>
+                    <div class="flex gap-1">
+                        <i class="fas fa-signal"></i>
+                        <i class="fas fa-wifi"></i>
+                        <i class="fas fa-battery-full"></i>
+                    </div>
+                </div>
+                <div class="canvas" id="canvas">
+                    </div>
+            </div>
+        </div>
+    </div>
 
-<div class="phone-frame">
-<div class="phone-toolbar" id="toolbar" contenteditable="true">Toolbar</div>
-<div class="canvas" id="canvas"></div>
-</div>
+    <div class="sidebar" style="border-right:none; border-left:1px solid #334155;">
+        <div class="panel-header">الخصائص <i class="fas fa-sliders-h"></i></div>
+        <div class="props-content" id="propsPanel">
+            <p class="text-slate-400 text-sm text-center mt-10">قم باختيار عنصر لتعديله</p>
+        </div>
+        <div class="p-4 bg-slate-800 flex gap-2">
+            <button onclick="duplicateSelected()" class="flex-1 bg-blue-600 p-2 rounded text-xs">تكرار</button>
+            <button onclick="deleteSelected()" class="flex-1 bg-red-600 p-2 rounded text-xs">حذف</button>
+        </div>
+    </div>
 
-<div id="previewBtn" onclick="togglePreview()">Preview</div>
-</div>
+    <div id="preview-overlay">
+        <div class="p-4 bg-slate-900 text-white flex justify-between">
+            <span>معاينة التطبيق</span>
+            <button onclick="closePreview()" class="text-red-400 font-bold">إغلاق X</button>
+        </div>
+        <iframe id="preview-iframe" class="w-full h-full border-none"></iframe>
+    </div>
 
-<!-- RIGHT PROPERTIES -->
-<div class="sidebar" id="rightPanel">
-<h3>Properties Panel</h3>
-<label>Text / Label</label><input type="text" id="propText">
-<label>Background</label><input type="color" id="propBg">
-<label>Text Color</label><input type="color" id="propColor">
-<label>Font Size</label><input type="number" id="propFontSize" min="8" max="72">
-<label>Font Weight</label><select id="propFontWeight"><option value="normal">Normal</option><option value="bold">Bold</option><option value="lighter">Light</option></select>
-<label>Text Align</label><select id="propTextAlign"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select>
-<label>Width (px)</label><input type="number" id="propWidth">
-<label>Height (px)</label><input type="number" id="propHeight">
-<label>Border Radius (px)</label><input type="number" id="propRadius">
-<label>Shadow</label><input type="checkbox" id="propShadow"> Enable
-<label>Action</label><select id="propAction"><option value="none">None</option><option value="alert">Show Alert</option><option value="link">Open Link</option><option value="goto">Go To Page</option></select>
-<label>Target / Link</label><input type="text" id="propTarget">
-<button onclick="duplicateElement()" class="mt-3 bg-blue-600 text-white p-2 rounded w-full">Duplicate</button>
-<button onclick="lockElement()" class="mt-1 bg-gray-700 text-white p-2 rounded w-full">Lock / Unlock</button>
-<button onclick="deleteElement()" class="mt-1 bg-red-600 text-white p-2 rounded w-full">Delete</button>
-</div>
+    <script>
+        let selectedEl = null;
+        let pages = { "الصفحة الرئيسية": [] };
+        let activePage = "الصفحة الرئيسية";
 
-<script>
-let selected=null,preview=false,pages={},currentPage=null;
-const leftPanel=document.getElementById('leftPanel');
-const rightPanel=document.getElementById('rightPanel');
-const canvas=document.getElementById('canvas');
-const pageTabs=document.getElementById('pageTabs');
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPageList();
+            setupDropZone();
+        });
 
-function toggleLeft(){leftPanel.classList.toggle('hidden')}
-function toggleRight(){rightPanel.classList.toggle('hidden')}
+        function setupDropZone() {
+            const canvas = document.getElementById('canvas');
+            canvas.addEventListener('dragover', (e) => e.preventDefault());
+            canvas.addEventListener('drop', handleDrop);
+        }
 
-/* PAGES */
-function createPage(){let id="Page"+(Object.keys(pages).length+1); pages[id]=[]; currentPage=id; renderTabs(); renderPage();}
-createPage();
-function renderTabs(){pageTabs.innerHTML="";for(let id in pages){let tab=document.createElement("div");tab.className="page-tab"+(id===currentPage?" active":"");tab.innerText=id;tab.onclick=()=>{currentPage=id;renderTabs();renderPage()};pageTabs.appendChild(tab);} 
-let add=document.createElement("div");add.id="addPage";add.innerText="+";add.onclick=createPage;pageTabs.appendChild(add);}
-function renderPage(){canvas.innerHTML="";pages[currentPage].forEach(el=>canvas.appendChild(el));}
+        // --- Core Logic ---
+        function handleDrop(e) {
+            e.preventDefault();
+            const type = e.dataTransfer.getData('type');
+            if (!type) return;
 
-/* DRAG & DROP COMPONENTS */
-document.querySelectorAll(".comp").forEach(c=>{c.addEventListener("dragstart",e=>{e.dataTransfer.setData("type",c.dataset.type)})});
-canvas.addEventListener("dragover",e=>e.preventDefault());
-canvas.addEventListener("drop",e=>{
-  e.preventDefault();
-  let type=e.dataTransfer.getData("type");
-  let el=document.createElement("div");
-  el.className="element"; el.style.minHeight="30px"; el.style.minWidth="50px"; el.style.background="#f3f4f6"; el.style.left="10px"; el.style.top="10px"; el.dataset.locked="false"; el.dataset.action="none"; el.dataset.target="";
-  switch(type){
-    case"text": el.innerText="Sample Text"; break;
-    case"button": el.innerText="Button"; el.style.background="#2563eb"; el.style.color="#fff"; el.style.textAlign="center"; break;
-    case"input": el.innerHTML='<input type="text" placeholder="Enter text..." style="width:100%;">'; break;
-    case"card": el.innerText="Card"; el.style.background="#e2e8f0"; el.style.padding="10px"; break;
-    case"image": el.innerHTML='<img src="https://via.placeholder.com/150" style="width:100%;">'; break;
-    case"list": el.innerHTML="<ul><li>Item 1</li><li>Item 2</li></ul>"; break;
-    case"slider": el.innerHTML='<input type="range" min="0" max="100" value="50" style="width:100%;">'; break;
-    case"modal": el.innerText="Modal / Dialog"; break;
-    case"alert": el.innerText="Alert / Snackbar"; break;
-    case"avatar": el.innerText="Avatar / Badge"; el.style.width="50px"; el.style.height="50px"; el.style.borderRadius="50%"; el.style.background="#2563eb"; break;
-    case"radio": el.innerHTML='<input type="radio"> Option'; break;
-    case"drawer": el.innerText="Drawer / Sidebar"; el.style.background="#1e293b"; el.style.color="#fff"; el.style.padding="10px"; break;
-  }
-  enableElement(el); pages[currentPage].push(el); canvas.appendChild(el);
-});
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
 
-/* ELEMENT SELECTION & PROPERTIES */
-function enableElement(el){
-  el.onmousedown=e=>{
-    if(el.dataset.locked==="true")return;
-    selected=el;
-    loadProps(el);
-    startDrag(e,el);
-  }
-}
-function loadProps(el){
-  propText.value=el.innerText||"";
-  propBg.value=rgbToHex(el.style.backgroundColor)||"#f3f4f6";
-  propColor.value=rgbToHex(el.style.color)||"#000000";
-  propFontSize.value=parseInt(window.getComputedStyle(el).fontSize)||14;
-  propFontWeight.value=el.style.fontWeight||"normal";
-  propTextAlign.value=el.style.textAlign||"left";
-  propWidth.value=parseInt(el.style.width)||el.offsetWidth;
-  propHeight.value=parseInt(el.style.height)||el.offsetHeight;
-  propRadius.value=parseInt(el.style.borderRadius)||0;
-  propShadow.checked=el.style.boxShadow?true:false;
-  propAction.value=el.dataset.action||"none";
-  propTarget.value=el.dataset.target||"";
-}
-function applyProps(){if(!selected)return;
-  selected.innerText=propText.value;
-  selected.style.background=propBg.value;
-  selected.style.color=propColor.value;
-  selected.style.fontSize=propFontSize.value+"px";
-  selected.style.fontWeight=propFontWeight.value;
-  selected.style.textAlign=propTextAlign.value;
-  selected.style.width=propWidth.value+"px";
-  selected.style.height=propHeight.value+"px";
-  selected.style.borderRadius=propRadius.value+"px";
-  selected.style.boxShadow=propShadow.checked?"0 4px 10px rgba(0,0,0,.25)":"";
-  selected.dataset.action=propAction.value;
-  selected.dataset.target=propTarget.value;
-}
-[propText,propBg,propColor,propFontSize,propFontWeight,propTextAlign,propWidth,propHeight,propRadius,propShadow,propAction,propTarget].forEach(input=>input.addEventListener("input",applyProps));
+            const el = document.createElement('div');
+            el.className = 'element-item';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.dataset.type = type;
+            
+            // Default content based on type
+            switch(type) {
+                case 'text': el.innerHTML = "نص جديد"; el.style.fontSize = "16px"; break;
+                case 'button': 
+                    el.innerHTML = "اضغط هنا"; 
+                    el.className += " bg-blue-600 text-white px-4 py-2 rounded-lg text-center";
+                    break;
+                case 'image':
+                    el.innerHTML = `<img src="https://picsum.photos/200/150" class="w-full h-full rounded">`;
+                    el.style.width = "200px";
+                    break;
+                case 'input':
+                    el.innerHTML = `<input type="text" placeholder="أدخل بياناتك..." class="w-full p-2 border rounded">`;
+                    el.style.width = "200px";
+                    break;
+                case 'card':
+                    el.style.width = "250px";
+                    el.style.height = "100px";
+                    el.style.backgroundColor = "#ffffff";
+                    el.style.boxShadow = "0 4px 6px -1px rgb(0 0 0 / 0.1)";
+                    el.style.borderRadius = "12px";
+                    el.innerHTML = "Container";
+                    break;
+            }
 
-/* DUPLICATE / LOCK / DELETE */
-function duplicateElement(){if(!selected)return; let clone=selected.cloneNode(true); enableElement(clone); pages[currentPage].push(clone); canvas.appendChild(clone);}
-function lockElement(){if(!selected)return; selected.dataset.locked=(selected.dataset.locked==="true"?"false":"true"); selected.style.opacity=(selected.dataset.locked==="true"?0.5:1);}
-function deleteElement(){if(!selected)return; canvas.removeChild(selected); pages[currentPage]=pages[currentPage].filter(e=>e!==selected); selected=null;}
+            makeElementDraggable(el);
+            el.onclick = (ev) => { ev.stopPropagation(); selectElement(el); };
+            canvas.appendChild(el);
+            selectElement(el);
+            saveState();
+        }
 
-/* DRAGGING */
-function startDrag(e,el){
-  let shiftX=e.clientX-el.getBoundingClientRect().left;
-  let shiftY=e.clientY-el.getBoundingClientRect().top;
-  function moveAt(e){el.style.left=e.clientX-shiftX+'px'; el.style.top=e.clientY-shiftY+'px';}
-  function onMouseMove(e){moveAt(e);}
-  document.addEventListener('mousemove',onMouseMove);
-  document.onmouseup=function(){document.removeEventListener('mousemove',onMouseMove);document.onmouseup=null;}
-}
+        function makeElementDraggable(el) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            el.onmousedown = (e) => {
+                if (selectedEl !== el) selectElement(el);
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = () => {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                    saveState();
+                };
+                document.onmousemove = (e) => {
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    el.style.top = (el.offsetTop - pos2) + "px";
+                    el.style.left = (el.offsetLeft - pos1) + "px";
+                };
+            };
+        }
 
-/* PREVIEW MODE */
-function togglePreview(){preview=!preview; document.getElementById('previewBtn').innerText=preview?"Back":"Preview";}
-canvas.onclick=function(e){
-  if(preview && e.target.dataset.action){
-    let el=e.target;
-    if(el.dataset.action==="alert")alert("Action Triggered!");
-    if(el.dataset.action==="link"&&el.dataset.target)window.open(el.dataset.target,"_blank");
-    if(el.dataset.action==="goto"&&pages[el.dataset.target]){currentPage=el.dataset.target; renderTabs(); renderPage();}
-  }
-}
+        function selectElement(el) {
+            if (selectedEl) selectedEl.classList.remove('element-selected');
+            selectedEl = el;
+            selectedEl.classList.add('element-selected');
+            renderProps();
+        }
 
-/* UTIL */
-function rgbToHex(rgb){if(!rgb)return"#ffffff";let r=rgb.match(/\d+/g);if(!r)return"#ffffff";return"#"+r.slice(0,3).map(x=>{let hex=parseInt(x).toString(16);return hex.length==1?"0"+hex}).join("")}
-</script>
+        // --- UI Rendering ---
+        function renderProps() {
+            if (!selectedEl) return;
+            const type = selectedEl.dataset.type;
+            let html = `
+                <div class="prop-group">
+                    <span class="prop-label">العرض (Width)</span>
+                    <input type="number" value="${parseInt(selectedEl.style.width) || selectedEl.offsetWidth}" oninput="updateStyle('width', this.value + 'px')">
+                </div>
+                <div class="prop-group">
+                    <span class="prop-label">الخلفية</span>
+                    <input type="color" value="${rgbToHex(selectedEl.style.backgroundColor)}" oninput="updateStyle('backgroundColor', this.value)">
+                </div>
+                <div class="prop-group">
+                    <span class="prop-label">نص المحتوى</span>
+                    <input type="text" value="${selectedEl.innerText}" oninput="updateContent(this.value)">
+                </div>
+                <div class="prop-group">
+                    <span class="prop-label">نصف القطر (Border Radius)</span>
+                    <input type="number" value="${parseInt(selectedEl.style.borderRadius) || 0}" oninput="updateStyle('borderRadius', this.value + 'px')">
+                </div>
+            `;
 
+            // Unique Props for Image
+            if (type === 'image') {
+                html += `
+                    <div class="prop-group">
+                        <span class="prop-label">رابط الصورة (URL)</span>
+                        <input type="text" placeholder="https://..." onchange="updateImageSrc(this.value)">
+                    </div>
+                `;
+            }
+
+            document.getElementById('propsPanel').innerHTML = html;
+        }
+
+        // --- Actions ---
+        function updateStyle(prop, val) {
+            if (selectedEl) selectedEl.style[prop] = val;
+        }
+
+        function updateContent(val) {
+            if (selectedEl) {
+                // Keep the image if it's an image component
+                if (selectedEl.dataset.type !== 'image' && selectedEl.dataset.type !== 'input') {
+                    selectedEl.innerText = val;
+                }
+            }
+        }
+
+        function updateImageSrc(url) {
+            const img = selectedEl.querySelector('img');
+            if (img) img.src = url;
+        }
+
+        function deleteSelected() {
+            if (selectedEl) {
+                selectedEl.remove();
+                selectedEl = null;
+                document.getElementById('propsPanel').innerHTML = '<p class="text-slate-400 text-sm text-center mt-10">قم باختيار عنصر لتعديله</p>';
+                saveState();
+            }
+        }
+
+        function duplicateSelected() {
+            if (!selectedEl) return;
+            const clone = selectedEl.cloneNode(true);
+            clone.classList.remove('element-selected');
+            clone.style.top = (parseInt(selectedEl.style.top) + 20) + "px";
+            clone.style.left = (parseInt(selectedEl.style.left) + 20) + "px";
+            makeElementDraggable(clone);
+            clone.onclick = (ev) => { ev.stopPropagation(); selectElement(clone); };
+            canvas.appendChild(clone);
+            saveState();
+        }
+
+        function setDevice(mode) {
+            const frame = document.getElementById('phoneFrame');
+            if (mode === 'tablet') frame.classList.add('tablet-mode');
+            else frame.classList.remove('tablet-mode');
+        }
+
+        // --- Export & Preview ---
+        function runPreview() {
+            const overlay = document.getElementById('preview-overlay');
+            const iframe = document.getElementById('preview-iframe');
+            overlay.style.display = 'block';
+            
+            // Generate basic HTML from canvas
+            let cleanCanvas = canvas.cloneNode(true);
+            // Remove selection boxes from preview
+            cleanCanvas.querySelectorAll('.element-selected').forEach(e => e.classList.remove('element-selected'));
+            
+            const html = `
+                <html>
+                    <head>
+                        <script src="https://cdn.tailwindcss.com"><\/script>
+                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+                        <style>
+                            body { margin:0; padding:0; height:100vh; background:#f8fafc; overflow:auto; }
+                            .element-item { position: absolute; }
+                        </style>
+                    </head>
+                    <body>${cleanCanvas.innerHTML}</body>
+                </html>
+            `;
+            iframe.srcdoc = html;
+        }
+
+        function closePreview() {
+            document.getElementById('preview-overlay').style.display = 'none';
+        }
+
+        function exportCode() {
+            const html = canvas.innerHTML;
+            const blob = new Blob([html], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'my-app.html';
+            a.click();
+        }
+
+        // --- Helpers ---
+        function rgbToHex(rgb) {
+            if (!rgb || rgb === "") return "#ffffff";
+            if (rgb.startsWith('#')) return rgb;
+            const res = rgb.match(/\d+/g);
+            return res ? "#" + res.slice(0, 3).map(x => {
+                const hex = parseInt(x).toString(16);
+                return hex.length == 1 ? "0" + hex : hex;
+            }).join("") : "#ffffff";
+        }
+
+        function saveState() {
+            // Can be implemented to save to localStorage
+            console.log("State Saved...");
+        }
+
+        function addNewPage() {
+            const name = prompt("اسم الصفحة الجديدة:");
+            if (name) {
+                pages[name] = [];
+                renderPageList();
+            }
+        }
+
+        function renderPageList() {
+            const list = document.getElementById('pageList');
+            list.innerHTML = "";
+            Object.keys(pages).forEach(p => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-700 p-2 rounded cursor-pointer hover:bg-slate-600">
+                        <span onclick="switchPage('${p}')">${p}</span>
+                        <i class="fas fa-trash text-xs text-red-400" onclick="deletePage('${p}')"></i>
+                    </div>
+                `;
+            });
+        }
+
+        document.querySelectorAll(".comp-item").forEach(item => {
+            item.addEventListener("dragstart", e => {
+                e.dataTransfer.setData("type", item.dataset.type);
+            });
+        });
+    </script>
 </body>
 </html>
