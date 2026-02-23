@@ -2,12 +2,12 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Ziggurat Builder Pro X</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ziggurat Builder Pro</title>
 
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
-margin:0;
 font-family:Inter,Arial;
 background:#f1f5f9;
 display:flex;
@@ -15,120 +15,103 @@ height:100vh;
 overflow:hidden
 }
 
-/* LEFT COMPONENTS */
-#components{
-width:220px;
+/* ===== SIDEBARS ===== */
+.sidebar{
+width:240px;
 background:#ffffff;
 border-right:1px solid #e2e8f0;
 padding:15px;
-overflow:auto
+overflow:auto;
+transition:.3s
 }
+
+#rightPanel{
+border-right:none;
+border-left:1px solid #e2e8f0;
+}
+
+.sidebar h3{
+margin-bottom:10px;
+font-size:14px
+}
+
 .comp{
 padding:8px;
 margin:6px 0;
 background:#2563eb;
-color:#fff;
+color:white;
 border-radius:6px;
 cursor:grab;
-font-size:13px
+font-size:13px;
+text-align:center
 }
 
-/* CENTER */
+/* ===== CENTER ===== */
 #center{
 flex:1;
 display:flex;
 flex-direction:column;
 align-items:center;
-position:relative
+position:relative;
 }
 
-/* PAGE TABS */
-#pageTabs{
+/* Top Bar */
+.topbar{
 width:100%;
+height:50px;
+background:#0f172a;
+color:white;
 display:flex;
 align-items:center;
-gap:8px;
-padding:10px;
-background:#ffffff;
-border-bottom:1px solid #e2e8f0;
-overflow-x:auto
-}
-.page-tab{
-padding:6px 12px;
-background:#e2e8f0;
-border-radius:20px;
-cursor:pointer;
-font-size:13px
-}
-.page-tab.active{
-background:#2563eb;
-color:white
-}
-#addPage{
-padding:6px 12px;
-background:#10b981;
-color:white;
-border-radius:50%;
-cursor:pointer
+justify-content:space-between;
+padding:0 15px;
 }
 
-/* PHONE */
+.iconBtn{
+cursor:pointer;
+font-size:20px;
+}
+
+/* Phone */
 .phone{
 width:380px;
 height:720px;
 background:white;
 border-radius:30px;
 box-shadow:0 25px 60px rgba(0,0,0,.25);
+margin-top:15px;
 overflow:hidden;
 display:flex;
 flex-direction:column;
-margin-top:15px
 }
 
 .toolbar{
 height:60px;
-background:#0f172a;
+background:#1e293b;
 color:white;
 display:flex;
 align-items:center;
-justify-content:center
+justify-content:center;
 }
 
 .main{
 flex:1;
-position:relative;
+padding:10px;
 overflow:auto;
-padding:10px
 }
 
 .element{
 padding:8px;
-margin:5px 0;
+margin:6px 0;
 border-radius:6px;
-cursor:pointer
+cursor:pointer;
 }
 
 .selected{
-outline:3px solid #2563eb
+outline:3px solid #2563eb;
 }
 
-/* RIGHT PROPS */
-#props{
-width:260px;
-background:white;
-border-left:1px solid #e2e8f0;
-padding:15px;
-overflow:auto
-}
-
-label{font-size:12px;margin-top:10px;display:block}
-input,select{
-width:100%;
-padding:6px;
-margin-top:3px
-}
-
-/* PREVIEW */
+/* Preview Button */
 #previewBtn{
 position:absolute;
 bottom:20px;
@@ -137,21 +120,43 @@ background:#2563eb;
 color:white;
 padding:10px 16px;
 border-radius:30px;
-cursor:pointer
+cursor:pointer;
 }
 
-.preview-mode .selected{
-outline:none
+/* ===== PROPERTIES ===== */
+label{font-size:12px;margin-top:10px;display:block}
+input,select{
+width:100%;
+padding:6px;
+margin-top:3px
 }
-.preview-mode .element{
-cursor:default
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+.sidebar{
+position:absolute;
+height:100%;
+z-index:1000;
+left:-250px;
+top:0;
+}
+#rightPanel{
+right:-250px;
+left:auto;
+}
+.sidebar.active{
+left:0;
+}
+#rightPanel.active{
+right:0;
+}
 }
 </style>
 </head>
 <body>
 
-<!-- COMPONENTS -->
-<div id="components">
+<!-- LEFT COMPONENTS -->
+<div class="sidebar" id="leftPanel">
 <h3>Components</h3>
 <div class="comp" draggable="true" data-type="text">Text</div>
 <div class="comp" draggable="true" data-type="button">Button</div>
@@ -162,19 +167,23 @@ cursor:default
 <!-- CENTER -->
 <div id="center">
 
-<div id="pageTabs"></div>
+<div class="topbar">
+<span class="iconBtn" onclick="toggleLeft()">☰</span>
+<span>Ziggurat Builder</span>
+<span class="iconBtn" onclick="toggleRight()">⚙</span>
+</div>
 
 <div class="phone">
 <div class="toolbar">App Title</div>
 <div class="main" id="canvas"></div>
 </div>
 
-<div id="previewBtn">Preview</div>
+<div id="previewBtn" onclick="togglePreview()">Preview</div>
 
 </div>
 
-<!-- PROPERTIES -->
-<div id="props">
+<!-- RIGHT PROPERTIES -->
+<div class="sidebar" id="rightPanel">
 <h3>Properties</h3>
 
 <label>Text</label>
@@ -183,59 +192,30 @@ cursor:default
 <label>Background</label>
 <input type="color" id="propBg">
 
-<label>Action Type</label>
+<label>Action</label>
 <select id="propAction">
 <option value="none">None</option>
-<option value="goto">Go To Page</option>
-<option value="timer">Auto After Time</option>
+<option value="alert">Show Alert</option>
+<option value="link">Open Link</option>
 </select>
 
-<label>Target Page ID</label>
-<input type="text" id="propTarget">
-
-<label>Time (ms)</label>
-<input type="number" id="propTime">
+<label>Link URL</label>
+<input type="text" id="propLink">
 
 </div>
 
 <script>
-let pages={}
-let currentPage=null
 let selected=null
 let preview=false
 
-function createPage(){
-let id="page"+Object.keys(pages).length
-pages[id]=[]
-currentPage=id
-renderTabs()
-renderPage()
+function toggleLeft(){
+leftPanel.classList.toggle("active")
 }
-createPage()
-
-function renderTabs(){
-pageTabs.innerHTML=""
-for(let id in pages){
-let tab=document.createElement("div")
-tab.className="page-tab"+(id===currentPage?" active":"")
-tab.innerText=id
-tab.onclick=()=>{currentPage=id;renderTabs();renderPage()}
-pageTabs.appendChild(tab)
-}
-let add=document.createElement("div")
-add.id="addPage"
-add.innerText="+"
-add.onclick=createPage
-pageTabs.appendChild(add)
+function toggleRight(){
+rightPanel.classList.toggle("active")
 }
 
-function renderPage(){
-canvas.innerHTML=""
-pages[currentPage].forEach(el=>{
-canvas.appendChild(el)
-})
-}
-
+/* Drag */
 document.querySelectorAll(".comp").forEach(c=>{
 c.addEventListener("dragstart",e=>{
 e.dataTransfer.setData("type",c.dataset.type)
@@ -249,65 +229,76 @@ let type=e.dataTransfer.getData("type")
 let el=document.createElement("div")
 el.className="element"
 
-if(type==="text"){el.innerText="Text"}
+if(type==="text"){el.innerText="Sample Text"}
 if(type==="button"){el.innerText="Button";el.style.background="#2563eb";el.style.color="#fff"}
-if(type==="card"){el.innerText="Card Content";el.style.background="#f1f5f9"}
+if(type==="card"){el.innerText="Card Content";el.style.background="#e2e8f0"}
 if(type==="image"){el.innerHTML='<img src="https://via.placeholder.com/200" width="100%">'}
 
-enableElement(el)
-pages[currentPage].push(el)
+enable(el)
 canvas.appendChild(el)
 })
 
-function enableElement(el){
+function enable(el){
 el.onclick=e=>{
 if(preview)return
 e.stopPropagation()
 if(selected)selected.classList.remove("selected")
 selected=el
 el.classList.add("selected")
-propText.value=el.innerText||""
+propText.value=el.innerText
+propBg.value=rgbToHex(el.style.backgroundColor)
 }
 }
 
+/* Properties */
 propText.oninput=e=>{
 if(selected)selected.innerText=e.target.value
+}
+
+propBg.oninput=e=>{
+if(selected)selected.style.background=e.target.value
 }
 
 propAction.onchange=e=>{
 if(selected)selected.dataset.action=e.target.value
 }
-propTarget.oninput=e=>{
-if(selected)selected.dataset.target=e.target.value
-}
-propTime.oninput=e=>{
-if(selected)selected.dataset.time=e.target.value
+
+propLink.oninput=e=>{
+if(selected)selected.dataset.link=e.target.value
 }
 
-previewBtn.onclick=()=>{
+/* Preview */
+function togglePreview(){
 preview=!preview
-document.body.classList.toggle("preview-mode")
-previewBtn.innerText=preview?"Back":"Preview"
-if(preview)runActions()
+if(preview){
+previewBtn.innerText="Back"
+runActions()
+}else{
+previewBtn.innerText="Preview"
+}
 }
 
 function runActions(){
 document.querySelectorAll(".element").forEach(el=>{
 el.onclick=()=>{
-if(el.dataset.action==="goto"){
-currentPage=el.dataset.target
-renderTabs()
-renderPage()
+if(el.dataset.action==="alert"){
+alert("Button Clicked")
 }
-if(el.dataset.action==="timer"){
-setTimeout(()=>{
-currentPage=el.dataset.target
-renderTabs()
-renderPage()
-},parseInt(el.dataset.time||1000))
+if(el.dataset.action==="link"){
+window.location.href=el.dataset.link
 }
 }
 })
+}
+
+function rgbToHex(rgb){
+if(!rgb)return"#ffffff"
+let result=rgb.match(/\d+/g)
+if(!result)return"#ffffff"
+return"#"+result.slice(0,3).map(x=>{
+let hex=parseInt(x).toString(16)
+return hex.length==1?"0"+hex:hex
+}).join("")
 }
 </script>
 
