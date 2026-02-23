@@ -1,394 +1,283 @@
 <!DOCTYPE html>
-<html lang="ar" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini Pro UI Builder v2.0</title>
+    <title>Gemini Builder Pro | الإصدار الاحترافي</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #f8fafc; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
         
-        /* Sidebar Styling */
-        .sidebar { width: 300px; background: #1e293b; border-right: 1px solid #334155; display: flex; flex-direction: column; transition: all 0.3s; }
-        .panel-header { padding: 15px; background: #334155; font-weight: bold; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; justify-content: space-between; }
+        body { font-family: 'Cairo', sans-serif; background: #0b0f1a; color: #e2e8f0; overflow: hidden; height: 100vh; }
         
-        /* Components Area */
-        .comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 15px; overflow-y: auto; }
-        .comp-item { background: #334155; padding: 12px; border-radius: 8px; cursor: grab; text-align: center; transition: 0.2s; border: 1px solid transparent; }
-        .comp-item:hover { background: #2563eb; border-color: #60a5fa; transform: translateY(-2px); }
-        .comp-item i { display: block; font-size: 20px; margin-bottom: 5px; }
-
-        /* Workspace Area */
-        #workspace { flex: 1; display: flex; flex-direction: column; background: #0f172a; position: relative; align-items: center; }
-        .top-nav { width: 100%; height: 60px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+        /* Glassmorphism Sidebar */
+        .sidebar { width: 280px; background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border-left: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; }
         
-        /* Device Frame */
-        .device-container { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; padding: 20px; overflow: auto; }
-        .phone-frame { 
-            width: 375px; height: 750px; background: white; border-radius: 40px; border: 12px solid #334155;
-            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); position: relative; transition: 0.5s; overflow: hidden;
-            display: flex; flex-direction: column;
+        .comp-card {
+            background: rgba(51, 65, 85, 0.5); border: 1px solid rgba(255,255,255,0.05);
+            padding: 12px; border-radius: 12px; cursor: grab; transition: all 0.3s ease;
+            display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px;
         }
-        .tablet-mode { width: 768px; height: 1024px; }
-        
-        .canvas { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; background: #f8fafc; }
-        
-        /* Selected Element Styling */
-        .element-selected { outline: 2px solid #2563eb !important; outline-offset: 2px; }
-        .element-item { position: absolute; min-width: 40px; min-height: 20px; cursor: move; transition: box-shadow 0.2s; }
+        .comp-card:hover { background: #3b82f6; transform: scale(1.05); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
 
-        /* Right Panel Tabs */
-        .props-content { padding: 15px; overflow-y: auto; flex: 1; }
-        .prop-group { margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 15px; }
-        .prop-label { font-size: 12px; color: #94a3b8; display: block; margin-bottom: 8px; }
-        input[type="text"], input[type="number"], select, input[type="color"] {
-            width: 100%; background: #0f172a; border: 1px solid #334155; color: white; padding: 8px; border-radius: 5px; font-size: 13px;
+        /* Canvas Area */
+        #workspace { flex: 1; position: relative; display: flex; flex-direction: column; background-image: radial-gradient(#2d3748 1px, transparent 1px); background-size: 20px 20px; }
+        
+        .phone-frame {
+            width: 380px; height: 780px; background: #ffffff; border-radius: 45px;
+            border: 12px solid #1e293b; box-shadow: 0 0 50px rgba(0,0,0,0.6);
+            position: relative; margin: auto; overflow: hidden; transition: 0.4s;
         }
 
-        /* Preview Overlay */
-        #preview-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:1000; }
+        .canvas { width: 100%; height: 100%; position: relative; overflow-y: auto; overflow-x: hidden; }
+
+        /* Element Styling */
+        .dropped-el {
+            position: absolute !important; padding: 10px; cursor: move; 
+            min-width: 100px; display: flex; align-items: center; justify-content: center;
+            border: 1px dashed transparent;
+        }
+        .dropped-el:hover { border-color: #3b82f6; }
+        .selected { outline: 2px solid #3b82f6 !important; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+
+        /* Control Bars */
+        .top-bar { height: 60px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; align-items: center; padding: 0 20px; gap: 20px; }
         
-        .btn-primary { background: #2563eb; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-success { background: #10b981; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-        .btn-danger { background: #ef4444; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        input, select { background: #0f172a; border: 1px solid #334155; color: white; padding: 6px; border-radius: 6px; width: 100%; font-size: 13px; }
+        
+        .label-prop { font-size: 11px; color: #94a3b8; margin-top: 10px; display: block; }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="flex">
 
     <div class="sidebar">
-        <div class="panel-header">العناصر <i class="fas fa-plus-circle"></i></div>
-        <div class="comp-grid">
-            <div class="comp-item" draggable="true" data-type="text"><i class="fas fa-font"></i>نص</div>
-            <div class="comp-item" draggable="true" data-type="button"><i class="fas fa-mouse-pointer"></i>زر</div>
-            <div class="comp-item" draggable="true" data-type="image"><i class="fas fa-image"></i>صورة</div>
-            <div class="comp-item" draggable="true" data-type="input"><i class="fas fa-i-cursor"></i>حقل إدخال</div>
-            <div class="comp-item" draggable="true" data-type="card"><i class="fas fa-square"></i>حاوية / Card</div>
-            <div class="comp-item" draggable="true" data-type="icon"><i class="fas fa-smile"></i>أيقونة</div>
-            <div class="comp-item" draggable="true" data-type="video"><i class="fas fa-video"></i>فيديو</div>
-            <div class="comp-item" draggable="true" data-type="list"><i class="fas fa-list"></i>قائمة</div>
+        <div class="p-5 font-bold text-lg border-b border-slate-700 flex justify-between items-center">
+            <span>العناصر</span>
+            <i class="fas fa-layer-group text-blue-500"></i>
         </div>
-        
-        <div class="panel-header">الصفحات <i class="fas fa-copy"></i></div>
-        <div id="pageList" class="p-4 space-y-2">
+        <div class="grid grid-cols-2 gap-3 p-4 overflow-y-auto">
+            <div class="comp-card" draggable="true" ondragstart="drag(event)" data-type="text">
+                <i class="fas fa-font text-xl"></i> <span>نص</span>
             </div>
-        <button onclick="addNewPage()" class="mx-4 mb-4 bg-emerald-600 p-2 rounded text-sm font-bold">+ إضافة صفحة جديدة</button>
+            <div class="comp-card" draggable="true" ondragstart="drag(event)" data-type="button">
+                <i class="fas fa-hand-pointer text-xl"></i> <span>زر</span>
+            </div>
+            <div class="comp-card" draggable="true" ondragstart="drag(event)" data-type="image">
+                <i class="fas fa-image text-xl"></i> <span>صورة</span>
+            </div>
+            <div class="comp-card" draggable="true" ondragstart="drag(event)" data-type="input">
+                <i class="fas fa-keyboard text-xl"></i> <span>حقل إدخال</span>
+            </div>
+            <div class="comp-card" draggable="true" ondragstart="drag(event)" data-type="card">
+                <i class="fas fa-window-maximize text-xl"></i> <span>حاوية</span>
+            </div>
+            <div class="comp-card" draggable="true" ondragstart="drag(event)" data-type="icon">
+                <i class="fas fa-icons text-xl"></i> <span>أيقونة</span>
+            </div>
+        </div>
     </div>
 
     <div id="workspace">
-        <div class="top-nav">
-            <div class="flex items-center gap-4">
-                <span class="text-xl font-bold text-blue-400">GEMINI UI</span>
-                <div class="flex bg-slate-800 rounded-lg p-1 gap-2">
-                    <button onclick="setDevice('phone')" class="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600"><i class="fas fa-mobile-alt"></i></button>
-                    <button onclick="setDevice('tablet')" class="px-3 py-1 rounded hover:bg-slate-700"><i class="fas fa-tablet-alt"></i></button>
-                </div>
+        <div class="top-bar justify-between">
+            <div class="flex gap-4">
+                <button onclick="setMode('phone')" class="hover:text-blue-500"><i class="fas fa-mobile-alt"></i></button>
+                <button onclick="setMode('tablet')" class="hover:text-blue-500"><i class="fas fa-tablet-alt"></i></button>
+                <div class="h-6 w-px bg-slate-700 mx-2"></div>
+                <button onclick="clearCanvas()" class="text-red-400 hover:text-red-300 text-sm"><i class="fas fa-trash"></i> مسح الكل</button>
             </div>
+            
             <div class="flex gap-3">
-                <button onclick="exportCode()" class="bg-slate-700 px-4 py-2 rounded text-sm hover:bg-slate-600"><i class="fas fa-code mr-2"></i>تصدير الكود</button>
-                <button onclick="runPreview()" class="btn-success text-sm"><i class="fas fa-play mr-2"></i>تشغيل</button>
+                <button onclick="exportCode()" class="bg-slate-700 px-4 py-1 rounded-full text-sm hover:bg-slate-600 transition">تصدير HTML</button>
+                <button onclick="togglePreview()" class="bg-blue-600 px-6 py-1 rounded-full text-sm font-bold hover:bg-blue-500 shadow-lg shadow-blue-900/20">معاينة</button>
             </div>
         </div>
 
-        <div class="device-container">
-            <div id="phoneFrame" class="phone-frame">
-                <div class="h-8 bg-white flex justify-between px-6 pt-2 text-xs font-bold text-slate-800">
-                    <span>9:41</span>
-                    <div class="flex gap-1">
-                        <i class="fas fa-signal"></i>
-                        <i class="fas fa-wifi"></i>
-                        <i class="fas fa-battery-full"></i>
-                    </div>
+        <div id="dropArea" class="flex-1 flex items-center justify-center p-10 overflow-auto" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <div id="phoneFrame" class="phone-frame bg-slate-50">
+                <div class="h-7 bg-white flex justify-between items-center px-8 pt-2 text-[10px] font-bold text-black">
+                    <span>12:30</span>
+                    <div class="flex gap-1"><i class="fas fa-wifi"></i><i class="fas fa-battery-full"></i></div>
                 </div>
-                <div class="canvas" id="canvas">
-                    </div>
+                <div id="canvas" class="canvas"></div>
             </div>
         </div>
     </div>
 
-    <div class="sidebar" style="border-right:none; border-left:1px solid #334155;">
-        <div class="panel-header">الخصائص <i class="fas fa-sliders-h"></i></div>
-        <div class="props-content" id="propsPanel">
-            <p class="text-slate-400 text-sm text-center mt-10">قم باختيار عنصر لتعديله</p>
+    <div class="sidebar border-l border-r-0 border-slate-700">
+        <div class="p-5 font-bold text-lg border-b border-slate-700">الخصائص</div>
+        <div id="propertiesPanel" class="p-4 overflow-y-auto flex-1">
+            <p class="text-slate-500 text-center text-sm mt-10">اختر عنصراً للتعديل عليه</p>
         </div>
-        <div class="p-4 bg-slate-800 flex gap-2">
-            <button onclick="duplicateSelected()" class="flex-1 bg-blue-600 p-2 rounded text-xs">تكرار</button>
-            <button onclick="deleteSelected()" class="flex-1 bg-red-600 p-2 rounded text-xs">حذف</button>
+        <div class="p-4 bg-slate-900/50 flex gap-2">
+            <button onclick="duplicateEl()" class="flex-1 bg-slate-700 py-2 rounded-md text-xs hover:bg-slate-600">تكرار</button>
+            <button onclick="deleteEl()" class="flex-1 bg-red-900/30 text-red-400 py-2 rounded-md text-xs hover:bg-red-800">حذف</button>
         </div>
-    </div>
-
-    <div id="preview-overlay">
-        <div class="p-4 bg-slate-900 text-white flex justify-between">
-            <span>معاينة التطبيق</span>
-            <button onclick="closePreview()" class="text-red-400 font-bold">إغلاق X</button>
-        </div>
-        <iframe id="preview-iframe" class="w-full h-full border-none"></iframe>
     </div>
 
     <script>
-        let selectedEl = null;
-        let pages = { "الصفحة الرئيسية": [] };
-        let activePage = "الصفحة الرئيسية";
+        let selectedElement = null;
 
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            renderPageList();
-            setupDropZone();
-        });
+        // --- Drag & Drop Core ---
+        function allowDrop(e) { e.preventDefault(); }
 
-        function setupDropZone() {
-            const canvas = document.getElementById('canvas');
-            canvas.addEventListener('dragover', (e) => e.preventDefault());
-            canvas.addEventListener('drop', handleDrop);
+        function drag(e) {
+            e.dataTransfer.setData("type", e.target.closest('.comp-card').dataset.type);
         }
 
-        // --- Core Logic ---
-        function handleDrop(e) {
+        function drop(e) {
             e.preventDefault();
-            const type = e.dataTransfer.getData('type');
-            if (!type) return;
-
+            const type = e.dataTransfer.getData("type");
+            const canvas = document.getElementById('canvas');
             const rect = canvas.getBoundingClientRect();
+            
+            // حساب الموقع بدقة داخل الكانفس
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            const el = document.createElement('div');
-            el.className = 'element-item';
-            el.style.left = x + 'px';
-            el.style.top = y + 'px';
-            el.dataset.type = type;
-            
-            // Default content based on type
+            const newEl = document.createElement('div');
+            newEl.className = 'dropped-el';
+            newEl.style.left = (x - 50) + 'px';
+            newEl.style.top = (y - 20) + 'px';
+            newEl.dataset.type = type;
+
+            // محتوى العناصر الافتراضي
             switch(type) {
-                case 'text': el.innerHTML = "نص جديد"; el.style.fontSize = "16px"; break;
+                case 'text': newEl.innerHTML = "نص جديد"; newEl.style.color = "#333"; break;
                 case 'button': 
-                    el.innerHTML = "اضغط هنا"; 
-                    el.className += " bg-blue-600 text-white px-4 py-2 rounded-lg text-center";
+                    newEl.innerHTML = "زر أمر"; 
+                    newEl.style.backgroundColor = "#3b82f6";
+                    newEl.style.color = "white";
+                    newEl.style.borderRadius = "8px";
+                    newEl.style.padding = "10px 20px";
                     break;
                 case 'image':
-                    el.innerHTML = `<img src="https://picsum.photos/200/150" class="w-full h-full rounded">`;
-                    el.style.width = "200px";
+                    newEl.innerHTML = `<img src="https://via.placeholder.com/150" class="w-full pointer-events-none">`;
+                    newEl.style.width = "150px";
                     break;
                 case 'input':
-                    el.innerHTML = `<input type="text" placeholder="أدخل بياناتك..." class="w-full p-2 border rounded">`;
-                    el.style.width = "200px";
+                    newEl.innerHTML = `<input type="text" placeholder="أدخل شيئاً..." class="w-full pointer-events-none">`;
+                    newEl.style.width = "200px";
                     break;
                 case 'card':
-                    el.style.width = "250px";
-                    el.style.height = "100px";
-                    el.style.backgroundColor = "#ffffff";
-                    el.style.boxShadow = "0 4px 6px -1px rgb(0 0 0 / 0.1)";
-                    el.style.borderRadius = "12px";
-                    el.innerHTML = "Container";
+                    newEl.style.width = "200px";
+                    newEl.style.height = "100px";
+                    newEl.style.background = "#fff";
+                    newEl.style.boxShadow = "0 4px 10px rgba(0,0,0,0.1)";
+                    newEl.style.borderRadius = "15px";
+                    newEl.innerHTML = "حاوية";
+                    break;
+                case 'icon':
+                    newEl.innerHTML = `<i class="fas fa-star text-2xl text-yellow-500"></i>`;
                     break;
             }
 
-            makeElementDraggable(el);
-            el.onclick = (ev) => { ev.stopPropagation(); selectElement(el); };
-            canvas.appendChild(el);
-            selectElement(el);
-            saveState();
+            // تفعيل التحريك والاختيار
+            newEl.onmousedown = (ev) => startMoving(ev, newEl);
+            newEl.onclick = (ev) => { ev.stopPropagation(); select(newEl); };
+            
+            canvas.appendChild(newEl);
+            select(newEl);
         }
 
-        function makeElementDraggable(el) {
-            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-            el.onmousedown = (e) => {
-                if (selectedEl !== el) selectElement(el);
-                e.preventDefault();
-                pos3 = e.clientX;
-                pos4 = e.clientY;
-                document.onmouseup = () => {
-                    document.onmouseup = null;
-                    document.onmousemove = null;
-                    saveState();
-                };
-                document.onmousemove = (e) => {
-                    pos1 = pos3 - e.clientX;
-                    pos2 = pos4 - e.clientY;
-                    pos3 = e.clientX;
-                    pos4 = e.clientY;
-                    el.style.top = (el.offsetTop - pos2) + "px";
-                    el.style.left = (el.offsetLeft - pos1) + "px";
-                };
+        // --- الحركة والاختيار ---
+        function startMoving(e, el) {
+            if (e.target.tagName === 'INPUT') return;
+            let ox = e.clientX - el.offsetLeft;
+            let oy = e.clientY - el.offsetTop;
+
+            document.onmousemove = (e) => {
+                el.style.left = (e.clientX - ox) + 'px';
+                el.style.top = (e.clientY - oy) + 'px';
+            };
+            document.onmouseup = () => {
+                document.onmousemove = null;
+                document.onmouseup = null;
             };
         }
 
-        function selectElement(el) {
-            if (selectedEl) selectedEl.classList.remove('element-selected');
-            selectedEl = el;
-            selectedEl.classList.add('element-selected');
-            renderProps();
+        function select(el) {
+            if (selectedElement) selectedElement.classList.remove('selected');
+            selectedElement = el;
+            el.classList.add('selected');
+            showProps(el);
         }
 
-        // --- UI Rendering ---
-        function renderProps() {
-            if (!selectedEl) return;
-            const type = selectedEl.dataset.type;
+        // --- لوحة الخصائص المتقدمة ---
+        function showProps(el) {
+            const panel = document.getElementById('propertiesPanel');
+            const type = el.dataset.type;
+            
             let html = `
-                <div class="prop-group">
-                    <span class="prop-label">العرض (Width)</span>
-                    <input type="number" value="${parseInt(selectedEl.style.width) || selectedEl.offsetWidth}" oninput="updateStyle('width', this.value + 'px')">
+                <div class="mb-4">
+                    <span class="label-prop">النص / المحتوى</span>
+                    <input type="text" value="${el.innerText}" oninput="updateProp('text', this.value)">
                 </div>
-                <div class="prop-group">
-                    <span class="prop-label">الخلفية</span>
-                    <input type="color" value="${rgbToHex(selectedEl.style.backgroundColor)}" oninput="updateStyle('backgroundColor', this.value)">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <span class="label-prop">لون الخلفية</span>
+                        <input type="color" value="${rgbToHex(el.style.backgroundColor)}" oninput="updateProp('bg', this.value)">
+                    </div>
+                    <div>
+                        <span class="label-prop">لون النص</span>
+                        <input type="color" value="${rgbToHex(el.style.color)}" oninput="updateProp('color', this.value)">
+                    </div>
                 </div>
-                <div class="prop-group">
-                    <span class="prop-label">نص المحتوى</span>
-                    <input type="text" value="${selectedEl.innerText}" oninput="updateContent(this.value)">
+                <div>
+                    <span class="label-prop">حجم الخط</span>
+                    <input type="number" value="${parseInt(el.style.fontSize) || 16}" oninput="updateProp('fontSize', this.value + 'px')">
                 </div>
-                <div class="prop-group">
-                    <span class="prop-label">نصف القطر (Border Radius)</span>
-                    <input type="number" value="${parseInt(selectedEl.style.borderRadius) || 0}" oninput="updateStyle('borderRadius', this.value + 'px')">
+                <div>
+                    <span class="label-prop">انحناء الحواف</span>
+                    <input type="number" value="${parseInt(el.style.borderRadius) || 0}" oninput="updateProp('radius', this.value + 'px')">
                 </div>
             `;
 
-            // Unique Props for Image
-            if (type === 'image') {
-                html += `
-                    <div class="prop-group">
-                        <span class="prop-label">رابط الصورة (URL)</span>
-                        <input type="text" placeholder="https://..." onchange="updateImageSrc(this.value)">
-                    </div>
-                `;
+            if(type === 'image') {
+                html += `<div><span class="label-prop">رابط الصورة</span><input type="text" onchange="updateProp('src', this.value)"></div>`;
             }
 
-            document.getElementById('propsPanel').innerHTML = html;
+            panel.innerHTML = html;
         }
 
-        // --- Actions ---
-        function updateStyle(prop, val) {
-            if (selectedEl) selectedEl.style[prop] = val;
+        function updateProp(prop, val) {
+            if (!selectedElement) return;
+            if (prop === 'text') selectedElement.innerText = val;
+            if (prop === 'bg') selectedElement.style.backgroundColor = val;
+            if (prop === 'color') selectedElement.style.color = val;
+            if (prop === 'fontSize') selectedElement.style.fontSize = val;
+            if (prop === 'radius') selectedElement.style.borderRadius = val;
+            if (prop === 'src') selectedElement.querySelector('img').src = val;
         }
 
-        function updateContent(val) {
-            if (selectedEl) {
-                // Keep the image if it's an image component
-                if (selectedEl.dataset.type !== 'image' && selectedEl.dataset.type !== 'input') {
-                    selectedEl.innerText = val;
-                }
-            }
+        // --- وظائف إضافية ---
+        function deleteEl() { if(selectedElement) { selectedElement.remove(); selectedElement = null; } }
+        
+        function duplicateEl() {
+            if(!selectedElement) return;
+            const clone = selectedElement.cloneNode(true);
+            clone.style.top = (parseInt(selectedElement.style.top) + 20) + "px";
+            clone.onmousedown = (ev) => startMoving(ev, clone);
+            clone.onclick = (ev) => { ev.stopPropagation(); select(clone); };
+            document.getElementById('canvas').appendChild(clone);
         }
 
-        function updateImageSrc(url) {
-            const img = selectedEl.querySelector('img');
-            if (img) img.src = url;
-        }
+        function clearCanvas() { if(confirm("هل أنت متأكد من مسح كافة العناصر؟")) document.getElementById('canvas').innerHTML = ""; }
 
-        function deleteSelected() {
-            if (selectedEl) {
-                selectedEl.remove();
-                selectedEl = null;
-                document.getElementById('propsPanel').innerHTML = '<p class="text-slate-400 text-sm text-center mt-10">قم باختيار عنصر لتعديله</p>';
-                saveState();
-            }
-        }
-
-        function duplicateSelected() {
-            if (!selectedEl) return;
-            const clone = selectedEl.cloneNode(true);
-            clone.classList.remove('element-selected');
-            clone.style.top = (parseInt(selectedEl.style.top) + 20) + "px";
-            clone.style.left = (parseInt(selectedEl.style.left) + 20) + "px";
-            makeElementDraggable(clone);
-            clone.onclick = (ev) => { ev.stopPropagation(); selectElement(clone); };
-            canvas.appendChild(clone);
-            saveState();
-        }
-
-        function setDevice(mode) {
+        function setMode(mode) {
             const frame = document.getElementById('phoneFrame');
-            if (mode === 'tablet') frame.classList.add('tablet-mode');
-            else frame.classList.remove('tablet-mode');
+            frame.style.width = mode === 'phone' ? '380px' : '700px';
         }
 
-        // --- Export & Preview ---
-        function runPreview() {
-            const overlay = document.getElementById('preview-overlay');
-            const iframe = document.getElementById('preview-iframe');
-            overlay.style.display = 'block';
-            
-            // Generate basic HTML from canvas
-            let cleanCanvas = canvas.cloneNode(true);
-            // Remove selection boxes from preview
-            cleanCanvas.querySelectorAll('.element-selected').forEach(e => e.classList.remove('element-selected'));
-            
-            const html = `
-                <html>
-                    <head>
-                        <script src="https://cdn.tailwindcss.com"><\/script>
-                        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-                        <style>
-                            body { margin:0; padding:0; height:100vh; background:#f8fafc; overflow:auto; }
-                            .element-item { position: absolute; }
-                        </style>
-                    </head>
-                    <body>${cleanCanvas.innerHTML}</body>
-                </html>
-            `;
-            iframe.srcdoc = html;
-        }
-
-        function closePreview() {
-            document.getElementById('preview-overlay').style.display = 'none';
-        }
-
-        function exportCode() {
-            const html = canvas.innerHTML;
-            const blob = new Blob([html], {type: 'text/html'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'my-app.html';
-            a.click();
-        }
-
-        // --- Helpers ---
         function rgbToHex(rgb) {
-            if (!rgb || rgb === "") return "#ffffff";
-            if (rgb.startsWith('#')) return rgb;
+            if (!rgb || rgb.startsWith('#')) return rgb || '#ffffff';
             const res = rgb.match(/\d+/g);
-            return res ? "#" + res.slice(0, 3).map(x => {
-                const hex = parseInt(x).toString(16);
-                return hex.length == 1 ? "0" + hex : hex;
-            }).join("") : "#ffffff";
+            return res ? "#" + res.slice(0, 3).map(x => parseInt(x).toString(16).padStart(2, '0')).join("") : "#ffffff";
         }
-
-        function saveState() {
-            // Can be implemented to save to localStorage
-            console.log("State Saved...");
-        }
-
-        function addNewPage() {
-            const name = prompt("اسم الصفحة الجديدة:");
-            if (name) {
-                pages[name] = [];
-                renderPageList();
-            }
-        }
-
-        function renderPageList() {
-            const list = document.getElementById('pageList');
-            list.innerHTML = "";
-            Object.keys(pages).forEach(p => {
-                list.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-700 p-2 rounded cursor-pointer hover:bg-slate-600">
-                        <span onclick="switchPage('${p}')">${p}</span>
-                        <i class="fas fa-trash text-xs text-red-400" onclick="deletePage('${p}')"></i>
-                    </div>
-                `;
-            });
-        }
-
-        document.querySelectorAll(".comp-item").forEach(item => {
-            item.addEventListener("dragstart", e => {
-                e.dataTransfer.setData("type", item.dataset.type);
-            });
-        });
     </script>
 </body>
 </html>
