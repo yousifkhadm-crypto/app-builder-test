@@ -2,23 +2,31 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>Ziggurat Builder Pro</title>
+<title>Ziggurat Builder Pro X</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#eef2f7;height:100vh;display:flex}
+body{
+margin:0;
+font-family:Inter,Arial;
+background:#f1f5f9;
+display:flex;
+height:100vh;
+overflow:hidden
+}
 
-/* LEFT COMPONENT PANEL */
+/* LEFT COMPONENTS */
 #components{
-width:240px;
-background:#fff;
-border-right:1px solid #ddd;
+width:220px;
+background:#ffffff;
+border-right:1px solid #e2e8f0;
 padding:15px;
 overflow:auto
 }
-.comp-item{
+.comp{
 padding:8px;
 margin:6px 0;
-background:#3b82f6;
+background:#2563eb;
 color:#fff;
 border-radius:6px;
 cursor:grab;
@@ -31,89 +39,103 @@ flex:1;
 display:flex;
 flex-direction:column;
 align-items:center;
-justify-content:center;
 position:relative
 }
 
+/* PAGE TABS */
+#pageTabs{
+width:100%;
+display:flex;
+align-items:center;
+gap:8px;
+padding:10px;
+background:#ffffff;
+border-bottom:1px solid #e2e8f0;
+overflow-x:auto
+}
+.page-tab{
+padding:6px 12px;
+background:#e2e8f0;
+border-radius:20px;
+cursor:pointer;
+font-size:13px
+}
+.page-tab.active{
+background:#2563eb;
+color:white
+}
+#addPage{
+padding:6px 12px;
+background:#10b981;
+color:white;
+border-radius:50%;
+cursor:pointer
+}
+
+/* PHONE */
 .phone{
 width:380px;
 height:720px;
-background:#fff;
-border-radius:25px;
+background:white;
+border-radius:30px;
 box-shadow:0 25px 60px rgba(0,0,0,.25);
 overflow:hidden;
 display:flex;
 flex-direction:column;
-position:relative
+margin-top:15px
 }
 
 .toolbar{
 height:60px;
-background:#1e293b;
-color:#fff;
+background:#0f172a;
+color:white;
 display:flex;
 align-items:center;
-justify-content:space-between;
-padding:0 15px
-}
-
-.sidebar{
-width:80px;
-background:#334155;
-color:#fff;
-display:flex;
-flex-direction:column;
-padding:10px;
-gap:10px
-}
-
-.content{
-flex:1;
-display:flex;
-position:relative
+justify-content:center
 }
 
 .main{
 flex:1;
-padding:10px;
-overflow:auto
+position:relative;
+overflow:auto;
+padding:10px
 }
 
-/* elements */
 .element{
 padding:8px;
 margin:5px 0;
 border-radius:6px;
-cursor:pointer;
-position:relative
-}
-.selected{
-outline:3px solid #3b82f6
+cursor:pointer
 }
 
-/* right properties */
+.selected{
+outline:3px solid #2563eb
+}
+
+/* RIGHT PROPS */
 #props{
-width:280px;
-background:#fff;
-border-left:1px solid #ddd;
+width:260px;
+background:white;
+border-left:1px solid #e2e8f0;
 padding:15px;
 overflow:auto
 }
-label{font-size:12px;margin-top:8px;display:block}
+
+label{font-size:12px;margin-top:10px;display:block}
 input,select{
 width:100%;
 padding:6px;
 margin-top:3px
 }
 
-/* preview button */
+/* PREVIEW */
 #previewBtn{
 position:absolute;
 bottom:20px;
 right:20px;
-background:#3b82f6;
-color:#fff;
-padding:10px 15px;
+background:#2563eb;
+color:white;
+padding:10px 16px;
 border-radius:30px;
 cursor:pointer
 }
@@ -131,36 +153,24 @@ cursor:default
 <!-- COMPONENTS -->
 <div id="components">
 <h3>Components</h3>
-<div class="comp-item" draggable="true" data-type="text">Text</div>
-<div class="comp-item" draggable="true" data-type="button">Button</div>
-<div class="comp-item" draggable="true" data-type="badge">Badge</div>
-<div class="comp-item" draggable="true" data-type="card">Card</div>
-<div class="comp-item" draggable="true" data-type="image">Image</div>
-<div class="comp-item" draggable="true" data-type="input">Input</div>
-<div class="comp-item" draggable="true" data-type="radio">Radio Button</div>
-<div class="comp-item" draggable="true" data-type="slider">Slider</div>
-<div class="comp-item" draggable="true" data-type="alert">Alert</div>
-<div class="comp-item" draggable="true" data-type="avatar">Avatar</div>
-<div class="comp-item" draggable="true" data-type="list">List Item</div>
+<div class="comp" draggable="true" data-type="text">Text</div>
+<div class="comp" draggable="true" data-type="button">Button</div>
+<div class="comp" draggable="true" data-type="card">Card</div>
+<div class="comp" draggable="true" data-type="image">Image</div>
 </div>
 
 <!-- CENTER -->
 <div id="center">
-<div class="phone" id="phone">
 
-<div class="toolbar element" data-type="toolbar">
-<span>App Title</span>
-<button id="toggleSidebar">☰</button>
-</div>
+<div id="pageTabs"></div>
 
-<div class="content">
-<div class="sidebar element" data-type="sidebar">Menu</div>
-<div class="main" id="mainArea"></div>
-</div>
-
+<div class="phone">
+<div class="toolbar">App Title</div>
+<div class="main" id="canvas"></div>
 </div>
 
 <div id="previewBtn">Preview</div>
+
 </div>
 
 <!-- PROPERTIES -->
@@ -173,517 +183,132 @@ cursor:default
 <label>Background</label>
 <input type="color" id="propBg">
 
-<label>Text Color</label>
-<input type="color" id="propColor">
-
-<label>Width (px)</label>
-<input type="number" id="propWidth">
-
-<label>Height (px)</label>
-<input type="number" id="propHeight">
-
-<label>Font Size</label>
-<input type="number" id="propFont">
-
-<hr>
-
-<h4>Button Action</h4>
 <label>Action Type</label>
 <select id="propAction">
 <option value="none">None</option>
-<option value="link">Open Link</option>
-<option value="alert">Show Alert</option>
+<option value="goto">Go To Page</option>
+<option value="timer">Auto After Time</option>
 </select>
 
-<label>Action Value</label>
-<input type="text" id="propActionValue" placeholder="URL or Message">
+<label>Target Page ID</label>
+<input type="text" id="propTarget">
 
-<hr>
+<label>Time (ms)</label>
+<input type="number" id="propTime">
 
-<h4>Layout</h4>
-<label>Sidebar Position</label>
-<select id="sidebarPos">
-<option value="left">Left</option>
-<option value="right">Right</option>
-</select>
 </div>
 
 <script>
+let pages={}
+let currentPage=null
 let selected=null
 let preview=false
 
-/* select */
-document.addEventListener("click",e=>{
-if(preview) return
-if(e.target.classList.contains("element")){
-if(selected) selected.classList.remove("selected")
-selected=e.target
-selected.classList.add("selected")
-loadProps(selected)
+function createPage(){
+let id="page"+Object.keys(pages).length
+pages[id]=[]
+currentPage=id
+renderTabs()
+renderPage()
 }
+createPage()
+
+function renderTabs(){
+pageTabs.innerHTML=""
+for(let id in pages){
+let tab=document.createElement("div")
+tab.className="page-tab"+(id===currentPage?" active":"")
+tab.innerText=id
+tab.onclick=()=>{currentPage=id;renderTabs();renderPage()}
+pageTabs.appendChild(tab)
+}
+let add=document.createElement("div")
+add.id="addPage"
+add.innerText="+"
+add.onclick=createPage
+pageTabs.appendChild(add)
+}
+
+function renderPage(){
+canvas.innerHTML=""
+pages[currentPage].forEach(el=>{
+canvas.appendChild(el)
 })
-
-function loadProps(el){
-propText.value=el.innerText||""
-propBg.value=rgbToHex(getComputedStyle(el).backgroundColor)
-propColor.value=rgbToHex(getComputedStyle(el).color)
-propWidth.value=el.offsetWidth
-propHeight.value=el.offsetHeight
-propFont.value=parseInt(getComputedStyle(el).fontSize)
 }
 
-/* update props */
-propText.oninput=e=>{if(selected)selected.innerText=e.target.value}
-propBg.oninput=e=>{if(selected)selected.style.background=e.target.value}
-propColor.oninput=e=>{if(selected)selected.style.color=e.target.value}
-propWidth.oninput=e=>{if(selected)selected.style.width=e.target.value+"px"}
-propHeight.oninput=e=>{if(selected)selected.style.height=e.target.value+"px"}
-propFont.oninput=e=>{if(selected)selected.style.fontSize=e.target.value+"px"}
-
-/* button actions */
-propAction.onchange=e=>{
-if(selected)selected.dataset.action=e.target.value
-}
-propActionValue.oninput=e=>{
-if(selected)selected.dataset.actionValue=e.target.value
-}
-
-/* sidebar position */
-sidebarPos.onchange=e=>{
-let content=document.querySelector(".content")
-let sidebar=document.querySelector(".sidebar")
-if(e.target.value==="right"){
-content.appendChild(sidebar)
-}else{
-content.insertBefore(sidebar,content.firstChild)
-}
-}
-
-/* preview mode */
-previewBtn.onclick=()=>{
-preview=!preview
-document.body.classList.toggle("preview-mode")
-previewBtn.innerText=preview?"Back to Edit":"Preview"
-}
-
-/* run actions */
-document.addEventListener("click",e=>{
-if(!preview) return
-let el=e.target
-if(el.dataset.action==="link"){
-window.open(el.dataset.actionValue,"_blank")
-}
-if(el.dataset.action==="alert"){
-alert(el.dataset.actionValue)
-}
-})
-
-/* drag */
-document.querySelectorAll(".comp-item").forEach(item=>{
-item.addEventListener("dragstart",e=>{
-e.dataTransfer.setData("type",item.dataset.type)
+document.querySelectorAll(".comp").forEach(c=>{
+c.addEventListener("dragstart",e=>{
+e.dataTransfer.setData("type",c.dataset.type)
 })
 })
 
-mainArea.addEventListener("dragover",e=>e.preventDefault())
-
-mainArea.addEventListener("drop",e=>{
+canvas.addEventListener("dragover",e=>e.preventDefault())
+canvas.addEventListener("drop",e=>{
 e.preventDefault()
 let type=e.dataTransfer.getData("type")
 let el=document.createElement("div")
-el.classList.add("element")
+el.className="element"
 
-if(type==="text") el.innerText="Text"
-if(type==="button"){el.innerText="Button";el.style.background="#3b82f6";el.style.color="#fff"}
-if(type==="badge"){el.innerText="Badge";el.style.background="#10b981";el.style.color="#fff"}
+if(type==="text"){el.innerText="Text"}
+if(type==="button"){el.innerText="Button";el.style.background="#2563eb";el.style.color="#fff"}
 if(type==="card"){el.innerText="Card Content";el.style.background="#f1f5f9"}
-if(type==="image"){el.innerHTML='<img src="https://via.placeholder.com/150" width="100%">'}
-if(type==="input"){el.innerHTML='<input placeholder="Type...">'}
-if(type==="radio"){el.innerHTML='<input type="radio"> Option'}
-if(type==="slider"){el.innerHTML='<input type="range">'}
-if(type==="alert"){el.innerText="Alert Box";el.style.background="#f87171";el.style.color="#fff"}
-if(type==="avatar"){el.innerHTML='<img src="https://via.placeholder.com/60" style="border-radius:50%">'}
-if(type==="list"){el.innerText="List Item"}
+if(type==="image"){el.innerHTML='<img src="https://via.placeholder.com/200" width="100%">'}
 
-mainArea.appendChild(el)
+enableElement(el)
+pages[currentPage].push(el)
+canvas.appendChild(el)
 })
 
-function rgbToHex(rgb){
-let result=rgb.match(/\d+/g)
-return"#"+result.map(x=>{
-let hex=parseInt(x).toString(16)
-return hex.length==1?"0"+hex:hex
-}).join("")
-}
-</script>
-
-</body>
-</html>
-/* preview button */
-#previewBtn{
-position:absolute;
-bottom:20px;
-right:20px;
-background:#3b82f6;
-color:#fff;
-padding:10px 15px;
-border-radius:30px;
-cursor:pointer
-}
-
-.preview-mode .selected{
-outline:none
-}
-.preview-mode .element{
-cursor:default
-}
-</style>
-</head>
-<body>
-
-<!-- COMPONENTS -->
-<div id="components">
-<h3>Components</h3>
-<div class="comp-item" draggable="true" data-type="text">Text</div>
-<div class="comp-item" draggable="true" data-type="button">Button</div>
-<div class="comp-item" draggable="true" data-type="badge">Badge</div>
-<div class="comp-item" draggable="true" data-type="card">Card</div>
-<div class="comp-item" draggable="true" data-type="image">Image</div>
-<div class="comp-item" draggable="true" data-type="input">Input</div>
-<div class="comp-item" draggable="true" data-type="radio">Radio Button</div>
-<div class="comp-item" draggable="true" data-type="slider">Slider</div>
-<div class="comp-item" draggable="true" data-type="alert">Alert</div>
-<div class="comp-item" draggable="true" data-type="avatar">Avatar</div>
-<div class="comp-item" draggable="true" data-type="list">List Item</div>
-</div>
-
-<!-- CENTER -->
-<div id="center">
-<div class="phone" id="phone">
-
-<div class="toolbar element" data-type="toolbar">
-<span>App Title</span>
-<button id="toggleSidebar">☰</button>
-</div>
-
-<div class="content">
-<div class="sidebar element" data-type="sidebar">Menu</div>
-<div class="main" id="mainArea"></div>
-</div>
-
-</div>
-
-<div id="previewBtn">Preview</div>
-</div>
-
-<!-- PROPERTIES -->
-<div id="props">
-<h3>Properties</h3>
-
-<label>Text</label>
-<input type="text" id="propText">
-
-<label>Background</label>
-<input type="color" id="propBg">
-
-<label>Text Color</label>
-<input type="color" id="propColor">
-
-<label>Width (px)</label>
-<input type="number" id="propWidth">
-
-<label>Height (px)</label>
-<input type="number" id="propHeight">
-
-<label>Font Size</label>
-<input type="number" id="propFont">
-
-<hr>
-
-<h4>Button Action</h4>
-<label>Action Type</label>
-<select id="propAction">
-<option value="none">None</option>
-<option value="link">Open Link</option>
-<option value="alert">Show Alert</option>
-</select>
-
-<label>Action Value</label>
-<input type="text" id="propActionValue" placeholder="URL or Message">
-
-<hr>
-
-<h4>Layout</h4>
-<label>Sidebar Position</label>
-<select id="sidebarPos">
-<option value="left">Left</option>
-<option value="right">Right</option>
-</select>
-</div>
-
-<script>
-let selected=null
-let preview=false
-
-/* select */
-document.addEventListener("click",e=>{
-if(preview) return
-if(e.target.classList.contains("element")){
-if(selected) selected.classList.remove("selected")
-selected=e.target
-selected.classList.add("selected")
-loadProps(selected)
-}
-})
-
-function loadProps(el){
+function enableElement(el){
+el.onclick=e=>{
+if(preview)return
+e.stopPropagation()
+if(selected)selected.classList.remove("selected")
+selected=el
+el.classList.add("selected")
 propText.value=el.innerText||""
-propBg.value=rgbToHex(getComputedStyle(el).backgroundColor)
-propColor.value=rgbToHex(getComputedStyle(el).color)
-propWidth.value=el.offsetWidth
-propHeight.value=el.offsetHeight
-propFont.value=parseInt(getComputedStyle(el).fontSize)
+}
 }
 
-/* update props */
-propText.oninput=e=>{if(selected)selected.innerText=e.target.value}
-propBg.oninput=e=>{if(selected)selected.style.background=e.target.value}
-propColor.oninput=e=>{if(selected)selected.style.color=e.target.value}
-propWidth.oninput=e=>{if(selected)selected.style.width=e.target.value+"px"}
-propHeight.oninput=e=>{if(selected)selected.style.height=e.target.value+"px"}
-propFont.oninput=e=>{if(selected)selected.style.fontSize=e.target.value+"px"}
+propText.oninput=e=>{
+if(selected)selected.innerText=e.target.value
+}
 
-/* button actions */
 propAction.onchange=e=>{
 if(selected)selected.dataset.action=e.target.value
 }
-propActionValue.oninput=e=>{
-if(selected)selected.dataset.actionValue=e.target.value
+propTarget.oninput=e=>{
+if(selected)selected.dataset.target=e.target.value
+}
+propTime.oninput=e=>{
+if(selected)selected.dataset.time=e.target.value
 }
 
-/* sidebar position */
-sidebarPos.onchange=e=>{
-let content=document.querySelector(".content")
-let sidebar=document.querySelector(".sidebar")
-if(e.target.value==="right"){
-content.appendChild(sidebar)
-}else{
-content.insertBefore(sidebar,content.firstChild)
-}
-}
-
-/* preview mode */
 previewBtn.onclick=()=>{
 preview=!preview
 document.body.classList.toggle("preview-mode")
-previewBtn.innerText=preview?"Back to Edit":"Preview"
+previewBtn.innerText=preview?"Back":"Preview"
+if(preview)runActions()
 }
 
-/* run actions */
-document.addEventListener("click",e=>{
-if(!preview) return
-let el=e.target
-if(el.dataset.action==="link"){
-window.open(el.dataset.actionValue,"_blank")
+function runActions(){
+document.querySelectorAll(".element").forEach(el=>{
+el.onclick=()=>{
+if(el.dataset.action==="goto"){
+currentPage=el.dataset.target
+renderTabs()
+renderPage()
 }
-if(el.dataset.action==="alert"){
-alert(el.dataset.actionValue)
+if(el.dataset.action==="timer"){
+setTimeout(()=>{
+currentPage=el.dataset.target
+renderTabs()
+renderPage()
+},parseInt(el.dataset.time||1000))
+}
 }
 })
-
-/* drag */
-document.querySelectorAll(".comp-item").forEach(item=>{
-item.addEventListener("dragstart",e=>{
-e.dataTransfer.setData("type",item.dataset.type)
-})
-})
-
-mainArea.addEventListener("dragover",e=>e.preventDefault())
-
-mainArea.addEventListener("drop",e=>{
-e.preventDefault()
-let type=e.dataTransfer.getData("type")
-let el=document.createElement("div")
-el.classList.add("element")
-
-if(type==="text") el.innerText="Text"
-if(type==="button"){el.innerText="Button";el.style.background="#3b82f6";el.style.color="#fff"}
-if(type==="badge"){el.innerText="Badge";el.style.background="#10b981";el.style.color="#fff"}
-if(type==="card"){el.innerText="Card Content";el.style.background="#f1f5f9"}
-if(type==="image"){el.innerHTML='<img src="https://via.placeholder.com/150" width="100%">'}
-if(type==="input"){el.innerHTML='<input placeholder="Type...">'}
-if(type==="radio"){el.innerHTML='<input type="radio"> Option'}
-if(type==="slider"){el.innerHTML='<input type="range">'}
-if(type==="alert"){el.innerText="Alert Box";el.style.background="#f87171";el.style.color="#fff"}
-if(type==="avatar"){el.innerHTML='<img src="https://via.placeholder.com/60" style="border-radius:50%">'}
-if(type==="list"){el.innerText="List Item"}
-
-mainArea.appendChild(el)
-})
-
-function rgbToHex(rgb){
-let result=rgb.match(/\d+/g)
-return"#"+result.map(x=>{
-let hex=parseInt(x).toString(16)
-return hex.length==1?"0"+hex:hex
-}).join("")
 }
-</script>
-
-</body>
-</html>/* RIGHT PANEL */
-#propertiesPanel {
-  width: 260px;
-  background: white;
-  padding: 15px;
-  border-left: 1px solid #ddd;
-  overflow-y: auto;
-}
-
-.property-group {
-  margin-bottom: 15px;
-}
-
-.property-group label {
-  font-size: 12px;
-  display: block;
-  margin-bottom: 4px;
-}
-</style>
-</head>
-<body>
-
-<!-- عناصر -->
-<div id="elementsPanel">
-  <div class="panel-title">العناصر</div>
-  <div class="draggable" draggable="true" data-type="text">Text</div>
-  <div class="draggable" draggable="true" data-type="button">Button</div>
-</div>
-
-<!-- الكانفس -->
-<div id="canvasWrapper">
-  <div class="phone">
-    <div class="toolbar element" data-type="toolbar">Toolbar</div>
-    <div class="content">
-      <div class="sidebar element" data-type="sidebar">Menu</div>
-      <div class="main" id="mainArea"></div>
-    </div>
-  </div>
-</div>
-
-<!-- الخصائص -->
-<div id="propertiesPanel">
-  <div class="panel-title">الخصائص</div>
-
-  <div class="property-group">
-    <label>النص</label>
-    <input type="text" id="propText">
-  </div>
-
-  <div class="property-group">
-    <label>لون الخلفية</label>
-    <input type="color" id="propBg">
-  </div>
-
-  <div class="property-group">
-    <label>لون النص</label>
-    <input type="color" id="propColor">
-  </div>
-
-  <div class="property-group">
-    <label>العرض (px)</label>
-    <input type="number" id="propWidth">
-  </div>
-
-  <div class="property-group">
-    <label>الارتفاع (px)</label>
-    <input type="number" id="propHeight">
-  </div>
-
-  <div class="property-group">
-    <label>حجم الخط (px)</label>
-    <input type="number" id="propFont">
-  </div>
-</div>
-
-<script>
-let selectedElement = null;
-
-/* تحديد عنصر */
-document.addEventListener("click", function(e){
-  if(e.target.classList.contains("element")){
-    selectElement(e.target);
-  }
-});
-
-function selectElement(el){
-  if(selectedElement) selectedElement.classList.remove("selected");
-  selectedElement = el;
-  el.classList.add("selected");
-
-  document.getElementById("propText").value = el.innerText;
-  document.getElementById("propBg").value = rgbToHex(getComputedStyle(el).backgroundColor);
-  document.getElementById("propColor").value = rgbToHex(getComputedStyle(el).color);
-  document.getElementById("propWidth").value = el.offsetWidth;
-  document.getElementById("propHeight").value = el.offsetHeight;
-  document.getElementById("propFont").value = parseInt(getComputedStyle(el).fontSize);
-}
-
-/* تحديث الخصائص */
-document.getElementById("propText").oninput = e=>{
-  if(selectedElement) selectedElement.innerText = e.target.value;
-};
-
-document.getElementById("propBg").oninput = e=>{
-  if(selectedElement) selectedElement.style.background = e.target.value;
-};
-
-document.getElementById("propColor").oninput = e=>{
-  if(selectedElement) selectedElement.style.color = e.target.value;
-};
-
-document.getElementById("propWidth").oninput = e=>{
-  if(selectedElement) selectedElement.style.width = e.target.value + "px";
-};
-
-document.getElementById("propHeight").oninput = e=>{
-  if(selectedElement) selectedElement.style.height = e.target.value + "px";
-};
-
-document.getElementById("propFont").oninput = e=>{
-  if(selectedElement) selectedElement.style.fontSize = e.target.value + "px";
-};
-
-/* تحويل rgb إلى hex */
-function rgbToHex(rgb){
-  const result = rgb.match(/\d+/g);
-  return "#" + result.map(x => {
-    const hex = parseInt(x).toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-  }).join("");
-}
-
-/* Drag */
-document.querySelectorAll(".draggable").forEach(item=>{
-  item.addEventListener("dragstart", e=>{
-    e.dataTransfer.setData("type", item.dataset.type);
-  });
-});
-
-document.getElementById("mainArea").addEventListener("dragover", e=>e.preventDefault());
-
-document.getElementById("mainArea").addEventListener("drop", e=>{
-  e.preventDefault();
-  const type = e.dataTransfer.getData("type");
-
-  let el = document.createElement("div");
-  el.classList.add("element");
-
-  if(type==="text") el.innerText = "نص";
-  if(type==="button") el.innerText = "زر";
-
-  document.getElementById("mainArea").appendChild(el);
-});
 </script>
 
 </body>
