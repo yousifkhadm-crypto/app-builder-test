@@ -318,6 +318,219 @@ return hex.length==1?"0"+hex:hex
 </script>
 
 </body>
+</html>
+/* preview button */
+#previewBtn{
+position:absolute;
+bottom:20px;
+right:20px;
+background:#3b82f6;
+color:#fff;
+padding:10px 15px;
+border-radius:30px;
+cursor:pointer
+}
+
+.preview-mode .selected{
+outline:none
+}
+.preview-mode .element{
+cursor:default
+}
+</style>
+</head>
+<body>
+
+<!-- COMPONENTS -->
+<div id="components">
+<h3>Components</h3>
+<div class="comp-item" draggable="true" data-type="text">Text</div>
+<div class="comp-item" draggable="true" data-type="button">Button</div>
+<div class="comp-item" draggable="true" data-type="badge">Badge</div>
+<div class="comp-item" draggable="true" data-type="card">Card</div>
+<div class="comp-item" draggable="true" data-type="image">Image</div>
+<div class="comp-item" draggable="true" data-type="input">Input</div>
+<div class="comp-item" draggable="true" data-type="radio">Radio Button</div>
+<div class="comp-item" draggable="true" data-type="slider">Slider</div>
+<div class="comp-item" draggable="true" data-type="alert">Alert</div>
+<div class="comp-item" draggable="true" data-type="avatar">Avatar</div>
+<div class="comp-item" draggable="true" data-type="list">List Item</div>
+</div>
+
+<!-- CENTER -->
+<div id="center">
+<div class="phone" id="phone">
+
+<div class="toolbar element" data-type="toolbar">
+<span>App Title</span>
+<button id="toggleSidebar">☰</button>
+</div>
+
+<div class="content">
+<div class="sidebar element" data-type="sidebar">Menu</div>
+<div class="main" id="mainArea"></div>
+</div>
+
+</div>
+
+<div id="previewBtn">Preview</div>
+</div>
+
+<!-- PROPERTIES -->
+<div id="props">
+<h3>Properties</h3>
+
+<label>Text</label>
+<input type="text" id="propText">
+
+<label>Background</label>
+<input type="color" id="propBg">
+
+<label>Text Color</label>
+<input type="color" id="propColor">
+
+<label>Width (px)</label>
+<input type="number" id="propWidth">
+
+<label>Height (px)</label>
+<input type="number" id="propHeight">
+
+<label>Font Size</label>
+<input type="number" id="propFont">
+
+<hr>
+
+<h4>Button Action</h4>
+<label>Action Type</label>
+<select id="propAction">
+<option value="none">None</option>
+<option value="link">Open Link</option>
+<option value="alert">Show Alert</option>
+</select>
+
+<label>Action Value</label>
+<input type="text" id="propActionValue" placeholder="URL or Message">
+
+<hr>
+
+<h4>Layout</h4>
+<label>Sidebar Position</label>
+<select id="sidebarPos">
+<option value="left">Left</option>
+<option value="right">Right</option>
+</select>
+</div>
+
+<script>
+let selected=null
+let preview=false
+
+/* select */
+document.addEventListener("click",e=>{
+if(preview) return
+if(e.target.classList.contains("element")){
+if(selected) selected.classList.remove("selected")
+selected=e.target
+selected.classList.add("selected")
+loadProps(selected)
+}
+})
+
+function loadProps(el){
+propText.value=el.innerText||""
+propBg.value=rgbToHex(getComputedStyle(el).backgroundColor)
+propColor.value=rgbToHex(getComputedStyle(el).color)
+propWidth.value=el.offsetWidth
+propHeight.value=el.offsetHeight
+propFont.value=parseInt(getComputedStyle(el).fontSize)
+}
+
+/* update props */
+propText.oninput=e=>{if(selected)selected.innerText=e.target.value}
+propBg.oninput=e=>{if(selected)selected.style.background=e.target.value}
+propColor.oninput=e=>{if(selected)selected.style.color=e.target.value}
+propWidth.oninput=e=>{if(selected)selected.style.width=e.target.value+"px"}
+propHeight.oninput=e=>{if(selected)selected.style.height=e.target.value+"px"}
+propFont.oninput=e=>{if(selected)selected.style.fontSize=e.target.value+"px"}
+
+/* button actions */
+propAction.onchange=e=>{
+if(selected)selected.dataset.action=e.target.value
+}
+propActionValue.oninput=e=>{
+if(selected)selected.dataset.actionValue=e.target.value
+}
+
+/* sidebar position */
+sidebarPos.onchange=e=>{
+let content=document.querySelector(".content")
+let sidebar=document.querySelector(".sidebar")
+if(e.target.value==="right"){
+content.appendChild(sidebar)
+}else{
+content.insertBefore(sidebar,content.firstChild)
+}
+}
+
+/* preview mode */
+previewBtn.onclick=()=>{
+preview=!preview
+document.body.classList.toggle("preview-mode")
+previewBtn.innerText=preview?"Back to Edit":"Preview"
+}
+
+/* run actions */
+document.addEventListener("click",e=>{
+if(!preview) return
+let el=e.target
+if(el.dataset.action==="link"){
+window.open(el.dataset.actionValue,"_blank")
+}
+if(el.dataset.action==="alert"){
+alert(el.dataset.actionValue)
+}
+})
+
+/* drag */
+document.querySelectorAll(".comp-item").forEach(item=>{
+item.addEventListener("dragstart",e=>{
+e.dataTransfer.setData("type",item.dataset.type)
+})
+})
+
+mainArea.addEventListener("dragover",e=>e.preventDefault())
+
+mainArea.addEventListener("drop",e=>{
+e.preventDefault()
+let type=e.dataTransfer.getData("type")
+let el=document.createElement("div")
+el.classList.add("element")
+
+if(type==="text") el.innerText="Text"
+if(type==="button"){el.innerText="Button";el.style.background="#3b82f6";el.style.color="#fff"}
+if(type==="badge"){el.innerText="Badge";el.style.background="#10b981";el.style.color="#fff"}
+if(type==="card"){el.innerText="Card Content";el.style.background="#f1f5f9"}
+if(type==="image"){el.innerHTML='<img src="https://via.placeholder.com/150" width="100%">'}
+if(type==="input"){el.innerHTML='<input placeholder="Type...">'}
+if(type==="radio"){el.innerHTML='<input type="radio"> Option'}
+if(type==="slider"){el.innerHTML='<input type="range">'}
+if(type==="alert"){el.innerText="Alert Box";el.style.background="#f87171";el.style.color="#fff"}
+if(type==="avatar"){el.innerHTML='<img src="https://via.placeholder.com/60" style="border-radius:50%">'}
+if(type==="list"){el.innerText="List Item"}
+
+mainArea.appendChild(el)
+})
+
+function rgbToHex(rgb){
+let result=rgb.match(/\d+/g)
+return"#"+result.map(x=>{
+let hex=parseInt(x).toString(16)
+return hex.length==1?"0"+hex:hex
+}).join("")
+}
+</script>
+
+</body>
 </html>/* RIGHT PANEL */
 #propertiesPanel {
   width: 260px;
